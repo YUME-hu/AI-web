@@ -6,7 +6,10 @@
  */
 
 const DEEPSEEK_BASE_URL = "https://api.deepseek.com";
-const DEFAULT_MODEL = "deepseek-chat";
+// deepseek-chat 已于 2026-07-24 弃用，对应 deepseek-v4-flash 非思考模式
+const DEFAULT_MODEL = "deepseek-v4-flash";
+// 结构化提取/流式问答走非思考模式：更快更便宜，行为与原 deepseek-chat 一致
+const THINKING_DISABLED = { type: "disabled" } as const;
 const DEFAULT_TIMEOUT_MS = 60_000;
 const MAX_RETRIES = 3;
 
@@ -77,6 +80,7 @@ export async function chatCompletion(
     model,
     messages,
     temperature,
+    thinking: THINKING_DISABLED,
     ...(maxTokens ? { max_tokens: maxTokens } : {}),
     ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
   };
@@ -184,6 +188,7 @@ export function chatCompletionStream(
             messages,
             temperature,
             stream: true,
+            thinking: THINKING_DISABLED,
             ...(maxTokens ? { max_tokens: maxTokens } : {}),
           }),
           signal: abort.signal,
