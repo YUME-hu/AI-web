@@ -2,7 +2,12 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient, isAdmin } from "@/lib/supabase/server";
 import { normalizeProjectInput, queryProjects } from "@/lib/projects";
 import { syncProjectEvents } from "@/lib/calendar";
-import type { ProjectFormValues } from "@/lib/types";
+import {
+  buildProjectText,
+  deleteSourceEmbeddings,
+  syncSourceEmbeddings,
+} from "@/lib/rag";
+import type { Project, ProjectFormValues } from "@/lib/types";
 
 /**
  * GET /api/projects — 公开
@@ -72,5 +77,17 @@ export async function POST(request: NextRequest) {
     start_date: data.start_date,
     end_date: data.end_date,
   }).catch((e) => console.error("日历事件同步失败", e));
+  // 同步 RAG 向量索引（仅已发布项目可被检索，失败不阻塞主流程）
+  if (data.is_published) {
+    await syncSourceEmbeddings(
+      "project",
+      data.id,
+      buildProjectText(data as Project),
+    ).catch((e) => console.error("向量索引同步失败", e));
+  } else {
+    await deleteSourceEmbeddings("project", data.id).catch((e) =>
+      console.error("向量索引删除失败", e),
+    );
+  }
   return NextResponse.json({ project: data }, { status: 201 });
 }

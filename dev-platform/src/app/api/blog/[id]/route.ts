@@ -2,6 +2,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient, isAdmin } from "@/lib/supabase/server";
 import { computeExcerpt, computeReadingTime } from "@/lib/blog";
 import { deleteBlogPostEvents, syncBlogPostEvent } from "@/lib/calendar";
+import {
+  buildBlogText,
+  deleteSourceEmbeddings,
+  syncSourceEmbeddings,
+} from "@/lib/rag";
 import type { BlogPost, BlogPostFormValues } from "@/lib/types";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -107,6 +112,18 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       console.error("日历事件删除失败", e),
     );
   }
+  // RAG 向量索引：仅发布文章索引，未发布则删除（失败不阻塞主流程）
+  if (updated.is_published) {
+    await syncSourceEmbeddings(
+      "blog",
+      updated.id,
+      buildBlogText(updated),
+    ).catch((e) => console.error("向量索引同步失败", e));
+  } else {
+    await deleteSourceEmbeddings("blog", id).catch((e) =>
+      console.error("向量索引删除失败", e),
+    );
+  }
   return NextResponse.json({ post: updated });
 }
 
@@ -121,6 +138,10 @@ export async function DELETE(_request: NextRequest, { params }: RouteContext) {
   // 先删关联日历事件（FK 无 cascade，不删会导致文章删除报错）
   await deleteBlogPostEvents(supabase, id).catch((e) =>
     console.error("日历事件删除失败", e),
+  );
+  // 删除 RAG 向量索引（失败不阻塞主流程）
+  await deleteSourceEmbeddings("blog", id).catch((e) =>
+    console.error("向量索引删除失败", e),
   );
   const { error } = await supabase.from("blog_posts").delete().eq("id", id);
 

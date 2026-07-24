@@ -2,7 +2,12 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient, isAdmin } from "@/lib/supabase/server";
 import { computeExcerpt, computeReadingTime } from "@/lib/blog";
 import { syncBlogPostEvent } from "@/lib/calendar";
-import type { BlogPostFormValues } from "@/lib/types";
+import {
+  buildBlogText,
+  deleteSourceEmbeddings,
+  syncSourceEmbeddings,
+} from "@/lib/rag";
+import type { BlogPost, BlogPostFormValues } from "@/lib/types";
 
 // PostgREST 唯一约束冲突
 const PG_UNIQUE_VIOLATION = "23505";
@@ -90,6 +95,18 @@ export async function POST(request: NextRequest) {
       title: data.title,
       published_at: data.published_at,
     }).catch((e) => console.error("日历事件同步失败", e));
+  }
+  // RAG 向量索引：仅发布文章索引，未发布则确保无残留（失败不阻塞主流程）
+  if (data.is_published) {
+    await syncSourceEmbeddings(
+      "blog",
+      data.id,
+      buildBlogText(data as BlogPost),
+    ).catch((e) => console.error("向量索引同步失败", e));
+  } else {
+    await deleteSourceEmbeddings("blog", data.id).catch((e) =>
+      console.error("向量索引删除失败", e),
+    );
   }
   return NextResponse.json({ post: data }, { status: 201 });
 }

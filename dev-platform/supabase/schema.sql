@@ -116,7 +116,7 @@ CREATE TABLE embeddings (
   source_id UUID NOT NULL,
   chunk_index INT NOT NULL,
   chunk_text TEXT NOT NULL,
-  embedding VECTOR(1536),
+  embedding VECTOR(1024),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -173,7 +173,7 @@ CREATE TRIGGER blog_posts_updated_at BEFORE UPDATE ON blog_posts
 
 -- ========== 向量检索函数（Phase 5 RAG 使用） ==========
 CREATE OR REPLACE FUNCTION match_embeddings(
-  query_embedding VECTOR(1536),
+  query_embedding VECTOR(1024),
   match_count INT DEFAULT 5,
   match_threshold FLOAT DEFAULT 0.5
 )

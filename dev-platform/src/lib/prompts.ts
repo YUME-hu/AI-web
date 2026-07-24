@@ -21,3 +21,7 @@ export const RESUME_EVALUATE = {
   user: (jobSummary: string, descriptions: unknown) =>
     `岗位摘要：${jobSummary}\n\n项目描述列表：${JSON.stringify(descriptions)}\n\n返回格式：[{"projectId":"项目ID","clarityScore":8,"relevanceScore":9,"quantificationScore":6,"overallScore":7.5,"suggestions":["建议1"]}]`,
 } as const;
+
+/** Phase 5 RAG 对话 system prompt（检索资料在调用时拼接于其后） */
+export const RAG_CHAT_SYSTEM =
+  "你是这个个人开发者平台上的 AI 助手，负责回答关于平台主人（一位开发者）的项目经历和技术能力的问题。基于以下检索到的资料回答，资料不足时诚实说明不知道，不要编造。回答使用中文，简洁专业。回答中提及具体项目或文章时，用【来源：标题】标注。";

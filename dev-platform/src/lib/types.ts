@@ -232,3 +232,24 @@ export const CALENDAR_EVENT_TYPE_LABELS: Record<CalendarEventType, string> = {
   blog_post: "文章发布",
   manual: "手动记录",
 };
+
+
+/* ==================== Phase 5：AI 知识助手（RAG） ==================== */
+
+/** 对话来源引用（chat_sessions.sources jsonb / SSE sources 帧） */
+export interface RagSource {
+  type: "project" | "blog";
+  title: string;
+  url: string;
+}
+
+/** 语义搜索结果项 */
+export interface SearchResult {
+  sourceType: "project" | "blog";
+  sourceId: string;
+  title: string;
+  similarity: number;
+  /** chunk_text 前 120 字 */
+  snippet: string;
+  url: string;
+}
