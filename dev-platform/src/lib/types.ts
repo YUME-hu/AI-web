@@ -373,3 +373,93 @@ export const RECOMMENDED_STATUS_LABELS: Record<RecommendedStatus, string> = {
   started: "进行中",
   completed: "已完成",
 };
+
+
+/* ==================== Phase 8：AI 面试教练 ==================== */
+
+export type InterviewCategory =
+  | "technical"
+  | "project"
+  | "system_design"
+  | "behavioral";
+
+export type InterviewQuestionStatus = "new" | "practiced" | "mastered";
+
+/** STAR 法则分析（ai_feedback.starAnalysis） */
+export interface StarAnalysis {
+  situation: string;
+  task: string;
+  action: string;
+  result: string;
+}
+
+/** 单题回答的 AI 反馈（interview_questions.ai_feedback jsonb） */
+export interface AnswerFeedback {
+  completeness: number;
+  technicalDepth: number;
+  structure: number;
+  overallScore: number;
+  feedback: string;
+  suggestions: string[];
+  starAnalysis: StarAnalysis;
+}
+
+/** 面试题（对应 interview_questions 表） */
+export interface InterviewQuestion {
+  id: string;
+  resume_id: string;
+  category: InterviewCategory;
+  question: string;
+  /** 1-3 */
+  difficulty: number;
+  assessment_points: string[];
+  reference_answer: string | null;
+  follow_ups: string[];
+  linked_project_id: string | null;
+  user_answer: string | null;
+  ai_feedback: AnswerFeedback | null;
+  status: InterviewQuestionStatus;
+  created_at: string;
+}
+
+/** 模拟面试对话消息（mock_interviews.conversation jsonb 元素） */
+export interface MockMessage {
+  role: "interviewer" | "candidate";
+  content: string;
+  ts: string;
+}
+
+/** 模拟面试评估报告（mock_interviews.evaluation jsonb） */
+export interface MockEvaluation {
+  technicalDepth: number;
+  projectClarity: number;
+  communicationSkill: number;
+  problemSolving: number;
+  overallScore: number;
+  strengths: string[];
+  weaknesses: string[];
+  suggestions: string[];
+}
+
+/** 模拟面试记录（对应 mock_interviews 表） */
+export interface MockInterview {
+  id: string;
+  resume_id: string;
+  conversation: MockMessage[];
+  evaluation: MockEvaluation | null;
+  started_at: string;
+  completed_at: string | null;
+}
+
+export const INTERVIEW_CATEGORY_LABELS: Record<InterviewCategory, string> = {
+  technical: "技术",
+  project: "项目",
+  system_design: "系统设计",
+  behavioral: "行为",
+};
+
+export const INTERVIEW_STATUS_LABELS: Record<InterviewQuestionStatus, string> = {
+  new: "未练习",
+  practiced: "已练习",
+  mastered: "已掌握",
+};
