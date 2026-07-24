@@ -213,3 +213,96 @@
 @utility text-glow-primary {
   text-shadow: 0 0 12px #00d4ff66;
 }
+
+/* ========== Tiptap 编辑器排版（暗色，自行定义不用 typography 插件） ========== */
+.blog-prose {
+  color: var(--foreground);
+  font-size: 0.9rem;
+  line-height: 1.75;
+}
+.blog-prose p {
+  margin: 0.6em 0;
+}
+.blog-prose h1,
+.blog-prose h2,
+.blog-prose h3 {
+  margin: 1em 0 0.4em;
+  font-weight: 700;
+  color: var(--foreground);
+}
+.blog-prose h1 {
+  font-size: 1.35rem;
+}
+.blog-prose h2 {
+  font-size: 1.2rem;
+  border-left: 3px solid var(--primary);
+  padding-left: 0.5rem;
+}
+.blog-prose h3 {
+  font-size: 1.05rem;
+}
+.blog-prose ul,
+.blog-prose ol {
+  margin: 0.5em 0;
+  padding-left: 1.4rem;
+}
+.blog-prose ul {
+  list-style: disc;
+}
+.blog-prose ol {
+  list-style: decimal;
+}
+.blog-prose li {
+  margin: 0.25em 0;
+}
+.blog-prose a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.blog-prose blockquote {
+  margin: 0.8em 0;
+  border-left: 2px solid var(--primary);
+  background: var(--muted);
+  padding: 0.5rem 1rem;
+  color: var(--muted-foreground);
+}
+.blog-prose code {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 0.1em 0.35em;
+  color: var(--accent);
+}
+.blog-prose pre {
+  margin: 0.8em 0;
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+}
+.blog-prose pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--foreground);
+  font-size: 0.8rem;
+}
+.blog-prose hr {
+  margin: 1.2em 0;
+  border-color: var(--border);
+}
+.blog-prose strong {
+  color: var(--foreground);
+  font-weight: 700;
+}
+/* 编辑器占位光标 */
+.blog-prose:focus {
+  outline: none;
+}
+.blog-prose .ProseMirror-trailingBreak {
+  display: inline;
+}

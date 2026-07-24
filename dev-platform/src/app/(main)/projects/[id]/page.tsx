@@ -61,6 +61,15 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   // 未发布项目仅管理员可见
   if (!project.is_published && !admin) notFound();
 
+  // 关联文章（Phase 3）：仅展示已发布文章
+  const supabase = await createClient();
+  const { data: linkedPosts } = await supabase
+    .from("blog_posts")
+    .select("title, slug, published_at")
+    .eq("linked_project_id", id)
+    .eq("is_published", true)
+    .order("published_at", { ascending: false });
+
   const range = formatRange(project);
 
   return (
@@ -233,16 +242,37 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         </section>
       )}
 
-      {/* 关联内容占位：Phase 3/4 接入 */}
+      {/* 关联内容：文章已接入（Phase 3），日历事件待 Phase 4 */}
       <section className="grid gap-4 md:grid-cols-2">
         <div className="border border-dashed border-border p-5">
           <h2 className="flex items-center gap-2 font-mono text-xs tracking-widest text-muted-foreground uppercase">
             <FileText className="size-4" />
             关联文章
           </h2>
-          <p className="mt-3 font-mono text-[10px] text-muted-foreground">
-            {"// Phase 3 接入"}
-          </p>
+          {linkedPosts && linkedPosts.length > 0 ? (
+            <ul className="mt-3 space-y-2">
+              {linkedPosts.map((post) => (
+                <li key={post.slug}>
+                  <Link
+                    href={`/blog/${post.slug}`}
+                    className="group flex items-baseline gap-2 text-sm"
+                  >
+                    <span className="font-mono text-primary">▸</span>
+                    <span className="text-foreground/90 transition-colors group-hover:text-primary">
+                      {post.title}
+                    </span>
+                    {post.published_at && (
+                      <span className="font-mono text-[10px] text-muted-foreground">
+                        {post.published_at.slice(0, 10)}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">暂无关联文章</p>
+          )}
         </div>
         <div className="border border-dashed border-border p-5">
           <h2 className="flex items-center gap-2 font-mono text-xs tracking-widest text-muted-foreground uppercase">

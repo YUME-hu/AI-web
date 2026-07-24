@@ -154,3 +154,48 @@ export const SKILL_IMPORTANCE_LABELS: Record<SkillImportance, string> = {
   medium: "重要",
   low: "了解",
 };
+
+
+/* ==================== Phase 3：博客系统 ==================== */
+
+export type BlogCategory = "ideas" | "life" | "tech_notes";
+
+/** 博客文章（对应 Supabase blog_posts 表） */
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  /** Markdown 原文 */
+  content: string;
+  excerpt: string | null;
+  category: BlogCategory;
+  tags: string[];
+  cover_image: string | null;
+  linked_project_id: string | null;
+  is_published: boolean;
+  published_at: string | null;
+  /** 分钟 */
+  reading_time: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** 博客编辑表单值 */
+export interface BlogPostFormValues {
+  title: string;
+  slug: string;
+  content: string;
+  category: BlogCategory;
+  tags: string[];
+  /** 空串表示无关联项目 */
+  linked_project_id: string;
+  is_published: boolean;
+}
+
+export const BLOG_CATEGORY_LABELS: Record<BlogCategory, string> = {
+  ideas: "想法",
+  life: "生活",
+  tech_notes: "技术笔记",
+};
+
+export const BLOG_CATEGORIES = Object.keys(BLOG_CATEGORY_LABELS) as BlogCategory[];

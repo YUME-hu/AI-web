@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+// 代码高亮暗色主题（rehype-highlight 输出的 hljs 类名），全局引入一次
+import "highlight.js/styles/github-dark.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
