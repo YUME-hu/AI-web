@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
         role: "user",
         content: `请从以下 README 内容中提取项目信息。\n\n${readme.slice(0, MAX_README_LENGTH)}\n\n${FORMAT_PROMPT}`,
       },
-    ]);
+    ], { trackModule: "project_import" });
 
     // 数组字段容错，避免模型返回非数组导致表单异常
     const parsed: ProjectParseResult = {

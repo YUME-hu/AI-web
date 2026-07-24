@@ -1,8 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import {
+  assertWithinDailyLimit,
   chatCompletionStream,
   DeepSeekError,
+  estimateCostUsd,
+  logAiUsage,
   type ChatMessage,
 } from "@/lib/deepseek";
 import { EmbeddingError } from "@/lib/embedding";
@@ -99,6 +102,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // 当日限额检查（公开接口，超限返回 429）
+  try {
+    await assertWithinDailyLimit();
+  } catch (err) {
+    if (err instanceof DeepSeekError) {
+      return NextResponse.json({ error: err.message }, { status: 429 });
+    }
+    return NextResponse.json({ error: "服务异常，请稍后重试" }, { status: 500 });
+  }
+
   try {
     const supabase = createServiceClient();
 
@@ -131,6 +144,7 @@ export async function POST(request: NextRequest) {
     ];
 
     // 4. 包装 SSE：sources 帧 → delta 帧 → done 帧
+    const startedAt = Date.now();
     const deepseekStream = chatCompletionStream(messages, { maxTokens: 1500 });
     const encoder = new TextEncoder();
     let fullAnswer = "";
@@ -165,6 +179,20 @@ export async function POST(request: NextRequest) {
               sources,
             });
           if (assistantWriteError) console.error("聊天记录写入失败", assistantWriteError);
+
+          // 6. 用量记录：流式响应拿不到精确 token 数，按字符数粗略估算（≈字符数/2，注释见 deepseek.ts）
+          const promptChars = messages.reduce((sum, m) => sum + m.content.length, 0);
+          const promptTokens = Math.ceil(promptChars / 2);
+          const completionTokens = Math.ceil(fullAnswer.length / 2);
+          await logAiUsage({
+            module: "knowledge",
+            prompt_tokens: promptTokens,
+            completion_tokens: completionTokens,
+            total_tokens: promptTokens + completionTokens,
+            cost_usd: estimateCostUsd(promptTokens, completionTokens),
+            duration_ms: Date.now() - startedAt,
+            model: "deepseek-chat",
+          });
         } catch (err) {
           // 流中途出错：协议内 error 帧（响应头已发出，无法再返回 502）
           console.error("对话流异常", err);

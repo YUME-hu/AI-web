@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     const { data } = await chatCompletionJson<JdAnalysis>([
       { role: "system", content: JD_ANALYSIS.system },
       { role: "user", content: JD_ANALYSIS.user(jdContent.slice(0, MAX_JD_LENGTH)) },
-    ]);
+    ], { trackModule: "resume" });
     const analysis = normalizeJdAnalysis(data);
 
     const supabase = await createClient();

@@ -50,7 +50,7 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
         role: "user",
         content: PROJECT_MATCH.user((resume as Resume).jd_analysis, projects),
       },
-    ]);
+    ], { trackModule: "resume" });
 
     const matches = normalizeMatches(raw, new Set(projects.map((p) => p.id)));
     if (matches.length === 0) {

@@ -18,6 +18,15 @@ export interface ChatMessage {
   content: string;
 }
 
+/** 用量追踪模块（对应 ai_usage_logs.module 的 CHECK 约束） */
+export type TrackModule =
+  | "resume"
+  | "knowledge"
+  | "project_import"
+  | "interview"
+  | "project_generator"
+  | "blog_assistant";
+
 export interface ChatCompletionOptions {
   model?: string;
   temperature?: number;
@@ -25,6 +34,8 @@ export interface ChatCompletionOptions {
   /** JSON 模式：要求模型只返回 JSON（DeepSeek 支持 response_format） */
   jsonMode?: boolean;
   timeoutMs?: number;
+  /** 用量追踪：设置后调用前检查当日限额，成功后写 ai_usage_logs */
+  trackModule?: TrackModule;
 }
 
 export interface ChatCompletionResult {
@@ -46,6 +57,77 @@ export class DeepSeekError extends Error {
   ) {
     super(message);
     this.name = "DeepSeekError";
+  }
+}
+
+/* ==================== 用量追踪与限流（Phase 6） ==================== */
+
+function dailyTokenLimit(): number {
+  return Number(process.env.DAILY_TOKEN_LIMIT ?? 500_000);
+}
+
+/** 当天 00:00（本地）的 ISO 时间 */
+function todayStartIso(): string {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString();
+}
+
+/** 查询今日已消耗 token 总和 */
+async function getTodayTokens(): Promise<number> {
+  // 动态 import：避免本 lib 被客户端组件间接引用时打包 service client
+  const { createServiceClient } = await import("@/lib/supabase/service");
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
+    .from("ai_usage_logs")
+    .select("total_tokens")
+    .gte("created_at", todayStartIso());
+  if (error) throw new DeepSeekError(`用量查询失败：${error.message}`);
+  return (data ?? []).reduce((sum, row) => sum + (row.total_tokens ?? 0), 0);
+}
+
+/** 当日限额检查：超限抛 DeepSeekError（不可重试） */
+export async function assertWithinDailyLimit(): Promise<void> {
+  const used = await getTodayTokens();
+  if (used >= dailyTokenLimit()) {
+    throw new DeepSeekError(
+      "今日 AI 调用额度已用完（Token 上限），请明天再试",
+      undefined,
+      false,
+    );
+  }
+}
+
+/**
+ * 成本估算（美元）：输入 $0.14/1M、输出 $0.28/1M
+ * 缓存命中未扣减（cache hit 更便宜），属保守估算
+ */
+export function estimateCostUsd(
+  promptTokens: number,
+  completionTokens: number,
+): number {
+  return (promptTokens * 0.14 + completionTokens * 0.28) / 1_000_000;
+}
+
+export interface AiUsageLogEntry {
+  module: TrackModule;
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+  cost_usd: number;
+  duration_ms: number;
+  model: string;
+}
+
+/** 写用量日志：失败仅 console.error，不影响主流程 */
+export async function logAiUsage(entry: AiUsageLogEntry): Promise<void> {
+  try {
+    const { createServiceClient } = await import("@/lib/supabase/service");
+    const supabase = createServiceClient();
+    const { error } = await supabase.from("ai_usage_logs").insert(entry);
+    if (error) console.error("AI 用量日志写入失败", error);
+  } catch (err) {
+    console.error("AI 用量日志写入失败", err);
   }
 }
 
@@ -74,7 +156,13 @@ export async function chatCompletion(
     maxTokens,
     jsonMode = false,
     timeoutMs = DEFAULT_TIMEOUT_MS,
+    trackModule,
   } = options;
+
+  // 调用前限流：当日 token 用量达到上限则拒绝（超限错误不重试）
+  if (trackModule) {
+    await assertWithinDailyLimit();
+  }
 
   const body: Record<string, unknown> = {
     model,
@@ -120,15 +208,31 @@ export async function chatCompletion(
         throw new DeepSeekError("DeepSeek 返回内容为空");
       }
 
+      const durationMs = Date.now() - startedAt;
+      const usage = {
+        promptTokens: data.usage?.prompt_tokens ?? 0,
+        completionTokens: data.usage?.completion_tokens ?? 0,
+        totalTokens: data.usage?.total_tokens ?? 0,
+      };
+
+      // 成功后写用量日志（logAiUsage 内部容错，不影响主流程）
+      if (trackModule) {
+        await logAiUsage({
+          module: trackModule,
+          prompt_tokens: usage.promptTokens,
+          completion_tokens: usage.completionTokens,
+          total_tokens: usage.totalTokens,
+          cost_usd: estimateCostUsd(usage.promptTokens, usage.completionTokens),
+          duration_ms: durationMs,
+          model: data.model ?? model,
+        });
+      }
+
       return {
         content: choice.message.content,
-        usage: {
-          promptTokens: data.usage?.prompt_tokens ?? 0,
-          completionTokens: data.usage?.completion_tokens ?? 0,
-          totalTokens: data.usage?.total_tokens ?? 0,
-        },
+        usage,
         model: data.model ?? model,
-        durationMs: Date.now() - startedAt,
+        durationMs,
       };
     } catch (err) {
       if (err instanceof DeepSeekError) {

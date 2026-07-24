@@ -253,3 +253,67 @@ export interface SearchResult {
   snippet: string;
   url: string;
 }
+
+
+/* ==================== Phase 6：Token 监控 ==================== */
+
+export type AiModule =
+  | "resume"
+  | "knowledge"
+  | "project_import"
+  | "interview"
+  | "project_generator"
+  | "blog_assistant";
+
+export const AI_MODULE_LABELS: Record<AiModule, string> = {
+  resume: "简历生成",
+  knowledge: "AI 问答",
+  project_import: "项目导入",
+  interview: "面试教练",
+  project_generator: "项目生成",
+  blog_assistant: "博客助手",
+};
+
+export interface UsageSummary {
+  tokens: number;
+  cost: number;
+  calls: number;
+}
+
+export interface UsageDailyPoint {
+  /** YYYY-MM-DD */
+  date: string;
+  tokens: number;
+  cost: number;
+}
+
+export interface UsageModulePoint {
+  module: string;
+  tokens: number;
+  cost: number;
+  calls: number;
+}
+
+export interface UsageLogItem {
+  module: string;
+  total_tokens: number;
+  cost_usd: number;
+  duration_ms: number | null;
+  model: string | null;
+  created_at: string;
+}
+
+export interface UsageStats {
+  today: UsageSummary;
+  /** 近 7 天（含今天） */
+  week: UsageSummary;
+  /** 近 30 天（含今天） */
+  month: UsageSummary;
+  /** 近 30 天每天（补零日期） */
+  daily: UsageDailyPoint[];
+  /** 近 30 天各模块 */
+  byModule: UsageModulePoint[];
+  /** 最近 50 条日志 */
+  recent: UsageLogItem[];
+  dailyLimit: { limit: number; used: number };
+}

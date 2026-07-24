@@ -54,7 +54,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const { data: raw } = await chatCompletionJson<ResumeEvaluation[]>([
       { role: "system", content: RESUME_EVALUATE.system },
       { role: "user", content: RESUME_EVALUATE.user(jobSummary, descriptions) },
-    ]);
+    ], { trackModule: "resume" });
 
     const evaluation = normalizeEvaluations(raw);
     const { error } = await supabase
