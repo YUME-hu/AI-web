@@ -306,3 +306,198 @@
 .blog-prose .ProseMirror-trailingBreak {
   display: inline;
 }
+
+/* ========== react-big-calendar 暗色覆盖（贴合明日方舟主题） ========== */
+.rbc-calendar {
+  background: transparent;
+  color: var(--foreground);
+  font-family: inherit;
+}
+
+/* 工具栏 */
+.rbc-calendar .rbc-toolbar {
+  margin-bottom: 0.75rem;
+  font-family: var(--font-mono);
+}
+.rbc-calendar .rbc-toolbar .rbc-toolbar-label {
+  color: var(--foreground);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+.rbc-calendar .rbc-toolbar button {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  transition: all 0.15s;
+}
+.rbc-calendar .rbc-toolbar button:hover {
+  background: var(--muted);
+  color: var(--foreground);
+  border-color: var(--primary);
+}
+.rbc-calendar .rbc-toolbar button:focus,
+.rbc-calendar .rbc-toolbar button:active,
+.rbc-calendar .rbc-toolbar button.rbc-active,
+.rbc-calendar .rbc-toolbar button.rbc-active:hover {
+  background: rgb(0 212 255 / 0.1);
+  border-color: rgb(0 212 255 / 0.4);
+  color: var(--primary);
+  box-shadow: none;
+}
+
+/* 月视图网格 */
+.rbc-calendar .rbc-month-view,
+.rbc-calendar .rbc-time-view,
+.rbc-calendar .rbc-agenda-view table.rbc-agenda-table {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+}
+.rbc-calendar .rbc-header {
+  border-bottom: 1px solid var(--border);
+  padding: 0.4rem 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+}
+.rbc-calendar .rbc-header + .rbc-header {
+  border-left: 1px solid var(--border);
+}
+.rbc-calendar .rbc-month-row + .rbc-month-row,
+.rbc-calendar .rbc-day-bg + .rbc-day-bg {
+  border-color: var(--border);
+}
+.rbc-calendar .rbc-day-bg + .rbc-day-bg {
+  border-left: 1px solid var(--border);
+}
+.rbc-calendar .rbc-month-row + .rbc-month-row {
+  border-top: 1px solid var(--border);
+}
+.rbc-calendar .rbc-off-range-bg {
+  background: rgb(13 17 23 / 0.6);
+}
+.rbc-calendar .rbc-off-range {
+  color: rgb(139 148 158 / 0.4);
+}
+.rbc-calendar .rbc-date-cell {
+  padding: 0.25rem 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted-foreground);
+  text-align: right;
+}
+.rbc-calendar .rbc-date-cell.rbc-now {
+  color: var(--primary);
+  font-weight: 700;
+}
+.rbc-calendar .rbc-today {
+  background: rgb(0 212 255 / 0.08);
+}
+.rbc-calendar .rbc-row-segment {
+  padding: 0 2px 1px;
+}
+.rbc-calendar .rbc-show-more {
+  background: transparent;
+  color: var(--primary);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 0 0.3rem;
+}
+
+/* 事件条：按类型分色（对应 eventPropGetter 的 className） */
+.rbc-calendar .rbc-event {
+  background: transparent;
+  border: none;
+  border-radius: 2px;
+  padding: 1px 4px;
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+.rbc-calendar .rbc-event:focus,
+.rbc-calendar .rbc-event.rbc-selected {
+  outline: 1px solid var(--ring);
+  background: inherit;
+}
+.rbc-calendar .rbc-event--project_start {
+  background: rgb(0 212 255 / 0.15);
+  border-left: 2px solid #00d4ff;
+  color: var(--foreground);
+}
+.rbc-calendar .rbc-event--project_end {
+  background: rgb(0 181 120 / 0.15);
+  border-left: 2px solid #00b578;
+  color: var(--foreground);
+}
+.rbc-calendar .rbc-event--blog_post {
+  background: rgb(255 140 0 / 0.15);
+  border-left: 2px solid #ff8c00;
+  color: var(--foreground);
+}
+.rbc-calendar .rbc-event--manual {
+  background: rgb(139 148 158 / 0.15);
+  border-left: 2px solid #8b949e;
+  color: var(--foreground);
+}
+.rbc-calendar .rbc-event--commit,
+.rbc-calendar .rbc-event--release {
+  background: var(--muted);
+  border-left: 2px solid var(--border);
+  color: var(--muted-foreground);
+}
+/* 弹层（show more） */
+.rbc-calendar .rbc-overlay {
+  background: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
+}
+.rbc-calendar .rbc-overlay-header {
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.4rem 0.6rem;
+}
+
+/* 周/日视图 */
+.rbc-calendar .rbc-time-header.rbc-overflowing,
+.rbc-calendar .rbc-time-header-content {
+  border-color: var(--border);
+}
+.rbc-calendar .rbc-time-content {
+  border-top: 1px solid var(--border);
+}
+.rbc-calendar .rbc-time-content > * + * > * {
+  border-left: 1px solid var(--border);
+}
+.rbc-calendar .rbc-timeslot-group {
+  border-bottom: 1px solid var(--border);
+}
+.rbc-calendar .rbc-time-gutter .rbc-label,
+.rbc-calendar .rbc-time-slot {
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+}
+.rbc-calendar .rbc-day-slot .rbc-time-slot {
+  border-top: 1px solid rgb(48 54 61 / 0.4);
+}
+.rbc-calendar .rbc-current-time-indicator {
+  background: var(--primary);
+  height: 1px;
+}
+.rbc-calendar .rbc-allday-cell {
+  /* 全天事件区背景 */
+  background: transparent;
+}
+.rbc-calendar .rbc-agenda-date-cell,
+.rbc-calendar .rbc-agenda-time-cell {
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+}

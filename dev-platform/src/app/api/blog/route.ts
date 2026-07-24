@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient, isAdmin } from "@/lib/supabase/server";
 import { computeExcerpt, computeReadingTime } from "@/lib/blog";
+import { syncBlogPostEvent } from "@/lib/calendar";
 import type { BlogPostFormValues } from "@/lib/types";
 
 // PostgREST 唯一约束冲突
@@ -81,6 +82,14 @@ export async function POST(request: NextRequest) {
       );
     }
     return NextResponse.json({ error: `创建失败：${error.message}` }, { status: 500 });
+  }
+  // 发布时同步日历事件（失败不阻塞主流程）
+  if (data.is_published && data.published_at) {
+    await syncBlogPostEvent(supabase, {
+      id: data.id,
+      title: data.title,
+      published_at: data.published_at,
+    }).catch((e) => console.error("日历事件同步失败", e));
   }
   return NextResponse.json({ post: data }, { status: 201 });
 }

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient, isAdmin } from "@/lib/supabase/server";
 import { computeExcerpt, computeReadingTime } from "@/lib/blog";
+import { deleteBlogPostEvents, syncBlogPostEvent } from "@/lib/calendar";
 import type { BlogPost, BlogPostFormValues } from "@/lib/types";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -93,7 +94,20 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     }
     return NextResponse.json({ error: `保存失败：${error.message}` }, { status: 500 });
   }
-  return NextResponse.json({ post: data as BlogPost });
+  // 日历事件同步：发布 → upsert（含标题/日期变化）；取消发布 → 删除（失败不阻塞主流程）
+  const updated = data as BlogPost;
+  if (updated.is_published && updated.published_at) {
+    await syncBlogPostEvent(supabase, {
+      id: updated.id,
+      title: updated.title,
+      published_at: updated.published_at,
+    }).catch((e) => console.error("日历事件同步失败", e));
+  } else {
+    await deleteBlogPostEvents(supabase, id).catch((e) =>
+      console.error("日历事件删除失败", e),
+    );
+  }
+  return NextResponse.json({ post: updated });
 }
 
 /** DELETE /api/blog/[id] — 删除文章（仅管理员） */
@@ -104,6 +118,10 @@ export async function DELETE(_request: NextRequest, { params }: RouteContext) {
 
   const { id } = await params;
   const supabase = await createClient();
+  // 先删关联日历事件（FK 无 cascade，不删会导致文章删除报错）
+  await deleteBlogPostEvents(supabase, id).catch((e) =>
+    console.error("日历事件删除失败", e),
+  );
   const { error } = await supabase.from("blog_posts").delete().eq("id", id);
 
   if (error) {

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient, isAdmin } from "@/lib/supabase/server";
 import { normalizeProjectInput, queryProjects } from "@/lib/projects";
+import { syncProjectEvents } from "@/lib/calendar";
 import type { ProjectFormValues } from "@/lib/types";
 
 /**
@@ -64,5 +65,12 @@ export async function POST(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: `创建失败：${error.message}` }, { status: 500 });
   }
+  // 同步日历事件（失败不阻塞主流程）
+  await syncProjectEvents(supabase, {
+    id: data.id,
+    title: data.title,
+    start_date: data.start_date,
+    end_date: data.end_date,
+  }).catch((e) => console.error("日历事件同步失败", e));
   return NextResponse.json({ project: data }, { status: 201 });
 }

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient, isAdmin } from "@/lib/supabase/server";
 import { normalizeProjectInput } from "@/lib/projects";
+import { deleteProjectEvents, syncProjectEvents } from "@/lib/calendar";
 import type { Project, ProjectFormValues } from "@/lib/types";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -53,6 +54,13 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   if (error) {
     return NextResponse.json({ error: `更新失败：${error.message}` }, { status: 500 });
   }
+  // 同步日历事件（失败不阻塞主流程）
+  await syncProjectEvents(supabase, {
+    id: data.id,
+    title: data.title,
+    start_date: data.start_date,
+    end_date: data.end_date,
+  }).catch((e) => console.error("日历事件同步失败", e));
   return NextResponse.json({ project: data });
 }
 
@@ -64,6 +72,10 @@ export async function DELETE(_request: NextRequest, { params }: RouteContext) {
 
   const { id } = await params;
   const supabase = await createClient();
+  // 先删关联日历事件（FK 无 cascade，不删会导致项目删除报错）
+  await deleteProjectEvents(supabase, id).catch((e) =>
+    console.error("日历事件删除失败", e),
+  );
   const { error } = await supabase.from("projects").delete().eq("id", id);
 
   if (error) {

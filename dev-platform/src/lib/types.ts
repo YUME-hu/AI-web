@@ -199,3 +199,36 @@ export const BLOG_CATEGORY_LABELS: Record<BlogCategory, string> = {
 };
 
 export const BLOG_CATEGORIES = Object.keys(BLOG_CATEGORY_LABELS) as BlogCategory[];
+
+
+/* ==================== Phase 4：开发日历 ==================== */
+
+export type CalendarEventType =
+  | "project_start"
+  | "project_end"
+  | "commit"
+  | "release"
+  | "blog_post"
+  | "manual";
+
+/** 日历事件（对应 Supabase calendar_events 表） */
+export interface CalendarEvent {
+  id: string;
+  /** date 列，格式 YYYY-MM-DD */
+  date: string;
+  event_type: CalendarEventType;
+  title: string;
+  description: string | null;
+  linked_project_id: string | null;
+  linked_blog_id: string | null;
+  created_at: string;
+}
+
+export const CALENDAR_EVENT_TYPE_LABELS: Record<CalendarEventType, string> = {
+  project_start: "项目启动",
+  project_end: "项目完成",
+  commit: "代码提交",
+  release: "版本发布",
+  blog_post: "文章发布",
+  manual: "手动记录",
+};
