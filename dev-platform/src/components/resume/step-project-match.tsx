@@ -1,7 +1,9 @@
 "use client";
 
-import { Loader2, Wand2 } from "lucide-react";
-import type { Project, ProjectMatch } from "@/lib/types";
+import { useState } from "react";
+import Link from "next/link";
+import { ArrowRight, Crosshair, Loader2, Wand2 } from "lucide-react";
+import type { Project, ProjectMatch, SkillGap } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,6 +25,7 @@ function scoreIndicatorClass(score: number): string {
 }
 
 interface StepProjectMatchProps {
+  resumeId: string;
   projects: Project[];
   matches: ProjectMatch[];
   selectedIds: string[];
@@ -36,6 +39,7 @@ interface StepProjectMatchProps {
 
 /** 步骤 2：项目匹配 — 评分、理由、可编辑的建议描述、勾选纳入简历 */
 export function StepProjectMatch({
+  resumeId,
   projects,
   matches,
   selectedIds,
@@ -50,6 +54,55 @@ export function StepProjectMatch({
   const matchedIds = new Set(matches.map((m) => m.projectId));
   // 未参与匹配的项目（项目数超过 20 时仅最近 20 个参与）
   const unmatched = projects.filter((p) => !matchedIds.has(p.id));
+
+  // ---- 技能缺口分析（Phase 7） ----
+  const [gapChecking, setGapChecking] = useState(false);
+  const [gapLoading, setGapLoading] = useState(false);
+  const [gapError, setGapError] = useState<string | null>(null);
+  const [gapResult, setGapResult] = useState<{
+    gaps: SkillGap[];
+    recommendations: unknown[];
+  } | null>(null);
+  // 该简历已有推荐方案数（>0 时需用户确认重新生成）
+  const [existingCount, setExistingCount] = useState<number | null>(null);
+
+  async function analyzeGaps(force: boolean) {
+    setGapError(null);
+    // 非强制时先检查已有推荐，由用户选择重新生成或查看
+    if (!force) {
+      setGapChecking(true);
+      try {
+        const res = await fetch(`/api/recommended?resume_id=${resumeId}`);
+        const data = await res.json().catch(() => null);
+        if (res.ok && (data?.recommendations?.length ?? 0) > 0) {
+          setExistingCount(data.recommendations.length);
+          return;
+        }
+      } catch {
+        // 检查失败不阻塞，直接走生成
+      } finally {
+        setGapChecking(false);
+      }
+    }
+    setGapLoading(true);
+    try {
+      const res = await fetch(`/api/resumes/${resumeId}/gaps`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ force }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(data?.error ?? "分析失败，请重试");
+      }
+      setGapResult(data);
+      setExistingCount(null);
+    } catch (err) {
+      setGapError(err instanceof Error ? err.message : "分析失败，请重试");
+    } finally {
+      setGapLoading(false);
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -68,6 +121,110 @@ export function StepProjectMatch({
           {matching ? "匹配中…" : matches.length > 0 ? "重新匹配" : "匹配项目"}
         </Button>
       </div>
+
+      {/* 技能缺口分析（Phase 7） */}
+      <section className="border border-border bg-card/50 p-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+              技能缺口分析 //
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              对照 JD 技能要求与项目库技术栈，找出缺失技能并生成练习项目方案
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-sm"
+            disabled={gapChecking || gapLoading}
+            onClick={() => void analyzeGaps(false)}
+          >
+            {gapChecking || gapLoading ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Crosshair className="size-3.5" />
+            )}
+            {gapChecking ? "检查中…" : gapLoading ? "分析生成中…" : "分析技能缺口"}
+          </Button>
+        </div>
+
+        {gapError && (
+          <p className="mt-3 border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {gapError}
+          </p>
+        )}
+
+        {/* 已有推荐：重新生成 or 查看 */}
+        {existingCount !== null && (
+          <div className="mt-3 flex flex-wrap items-center gap-3 border border-accent/40 bg-accent/5 px-3 py-2.5">
+            <p className="text-sm text-foreground/90">
+              该岗位已有 <span className="font-mono font-bold text-accent">{existingCount}</span> 条推荐方案
+            </p>
+            <div className="ml-auto flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="rounded-sm"
+                disabled={gapLoading}
+                onClick={() => void analyzeGaps(true)}
+              >
+                {gapLoading && <Loader2 className="size-3.5 animate-spin" />}
+                重新生成
+              </Button>
+              <Link
+                href={`/projects/recommended?resume_id=${resumeId}`}
+                className="flex items-center gap-1 font-mono text-xs text-primary hover:underline"
+              >
+                查看方案
+                <ArrowRight className="size-3" />
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* 缺口摘要 */}
+        {gapResult && (
+          <div className="mt-3 space-y-2">
+            {gapResult.gaps.length > 0 ? (
+              <>
+                <div className="flex flex-wrap gap-1.5">
+                  {gapResult.gaps.map((gap) => (
+                    <Badge
+                      key={gap.skill}
+                      variant="outline"
+                      className={cn(
+                        "rounded-sm font-mono",
+                        gap.coverage === "missing"
+                          ? "border-destructive/50 bg-destructive/10 text-destructive"
+                          : "border-accent/50 bg-accent/10 text-accent",
+                      )}
+                      title={
+                        gap.coverage === "weak"
+                          ? `仅 ${gap.coveredBy[0]} 覆盖`
+                          : "项目库中无覆盖"
+                      }
+                    >
+                      {gap.skill} · {gap.coverage === "missing" ? "缺失" : "覆盖不足"}
+                    </Badge>
+                  ))}
+                </div>
+                <Link
+                  href={`/projects/recommended?resume_id=${resumeId}`}
+                  className="inline-flex items-center gap-1.5 font-mono text-xs text-primary hover:underline"
+                >
+                  查看推荐项目方案（{gapResult.recommendations.length} 个）
+                  <ArrowRight className="size-3.5" />
+                </Link>
+              </>
+            ) : (
+              <p className="text-sm text-success">
+                未检测到技能缺口：项目库已覆盖 JD 的主要技能要求
+              </p>
+            )}
+          </div>
+        )}
+      </section>
 
       {matches.length === 0 && !matching && (
         <div className="border border-dashed border-border px-6 py-16 text-center">

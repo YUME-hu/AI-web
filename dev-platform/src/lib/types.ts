@@ -317,3 +317,59 @@ export interface UsageStats {
   recent: UsageLogItem[];
   dailyLimit: { limit: number; used: number };
 }
+
+
+/* ==================== Phase 7：AI 项目生成器 ==================== */
+
+export type RecommendedStatus = "saved" | "started" | "completed";
+
+export interface LearningResource {
+  title: string;
+  url: string;
+  /** doc / video / course */
+  type: string;
+}
+
+/** AI 生成的项目方案（recommended_projects.project_plan jsonb） */
+export interface ProjectPlan {
+  name: string;
+  description: string;
+  whyRecommended: string;
+  techStack: string[];
+  features: string[];
+  implementation: string;
+  estimatedDays: number;
+  learningResources: LearningResource[];
+  resumeValue: string;
+}
+
+/** 推荐项目记录（对应 recommended_projects 表） */
+export interface RecommendedProject {
+  id: string;
+  resume_id: string;
+  skill_gap: string;
+  project_plan: ProjectPlan;
+  status: RecommendedStatus;
+  converted_project_id: string | null;
+  created_at: string;
+}
+
+/** 列表展示用：附带简历目标岗位 */
+export interface RecommendedProjectWithRole extends RecommendedProject {
+  target_role?: string | null;
+}
+
+/** 代码层确定性缺口计算结果 */
+export interface SkillGap {
+  skill: string;
+  /** missing=完全缺失（0 个项目覆盖）；weak=覆盖不足（仅 1 个） */
+  coverage: "missing" | "weak";
+  /** 覆盖该技能的项目标题 */
+  coveredBy: string[];
+}
+
+export const RECOMMENDED_STATUS_LABELS: Record<RecommendedStatus, string> = {
+  saved: "已保存",
+  started: "进行中",
+  completed: "已完成",
+};

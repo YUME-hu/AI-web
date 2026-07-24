@@ -25,3 +25,11 @@ export const RESUME_EVALUATE = {
 /** Phase 5 RAG 对话 system prompt（检索资料在调用时拼接于其后） */
 export const RAG_CHAT_SYSTEM =
   "你是这个个人开发者平台上的 AI 助手，负责回答关于平台主人（一位开发者）的项目经历和技术能力的问题。基于以下检索到的资料回答，资料不足时诚实说明不知道，不要编造。回答使用中文，简洁专业。回答中提及具体项目或文章时，用【来源：标题】标注。";
+
+/** Phase 7 项目推荐方案生成（技能缺口 → 练习项目） */
+export const PROJECT_PLAN = {
+  system:
+    "你是一个技术项目顾问。用户需要补齐技能缺口，请推荐一个练习项目。只返回 JSON。",
+  user: (skillGap: string, existingSkills: string[], targetRole: string) =>
+    `技能缺口：${skillGap}\n用户现有技能：${existingSkills.join("、") || "无"}\n目标岗位：${targetRole}\n\n返回格式：{"name":"项目名称","description":"50字内简介","whyRecommended":"为什么推荐（对应哪些JD要求）","techStack":["技术1"],"features":["核心功能1"],"implementation":"实现思路与技术要点（100字内）","estimatedDays":14,"learningResources":[{"title":"资源名","url":"链接","type":"doc/video/course"}],"resumeValue":"完成后在简历中的描述方式（80字内）"}`,
+} as const;

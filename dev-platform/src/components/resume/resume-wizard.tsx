@@ -306,6 +306,7 @@ export function ResumeWizard({
       {step === 1 && <StepJdAnalysis resume={resume} />}
       {step === 2 && (
         <StepProjectMatch
+          resumeId={resume.id}
           projects={projects}
           matches={matches}
           selectedIds={selectedIds}
