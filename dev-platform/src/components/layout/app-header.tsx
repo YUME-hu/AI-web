@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
+import { AuthButton } from "./auth-button";
 
 function resolveTitle(pathname: string): string {
   const match = NAV_ITEMS.find((item) =>
@@ -34,8 +35,9 @@ export function AppHeader({ onMenuClick }: { onMenuClick: () => void }) {
         <span className="text-foreground">{resolveTitle(pathname)}</span>
       </div>
 
-      {/* 右侧装饰状态 */}
+      {/* 右侧状态区 */}
       <div className="ml-auto flex items-center gap-4">
+        <AuthButton />
         <span className="hidden font-mono text-[10px] tracking-widest text-muted-foreground sm:block">
           TACTICAL CONSOLE
         </span>

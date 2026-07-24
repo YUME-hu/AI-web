@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -16,6 +17,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 const ICONS: Record<string, LucideIcon> = {
@@ -92,6 +94,19 @@ export function AppSidebar({
   onClose: () => void;
 }) {
   const pathname = usePathname();
+  // 登录后才显示管理分组（初始为 false，避免管理入口对访客闪现）
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setLoggedIn(!!data.user));
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setLoggedIn(!!session?.user);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const content = (
     <div className="flex h-full flex-col">
@@ -118,14 +133,16 @@ export function AppSidebar({
       {/* 导航 */}
       <nav className="flex-1 space-y-6 overflow-y-auto py-5">
         <NavGroup label="公开 // Public" adminOnly={false} pathname={pathname} onNavigate={onClose} />
-        <NavGroup label="管理 // Admin" adminOnly pathname={pathname} onNavigate={onClose} />
+        {loggedIn && (
+          <NavGroup label="管理 // Admin" adminOnly pathname={pathname} onNavigate={onClose} />
+        )}
       </nav>
 
       {/* 底部状态 */}
       <div className="shrink-0 border-t border-sidebar-border px-5 py-3">
         <p className="font-mono text-[10px] text-muted-foreground">
           <span className="text-success">●</span> SYS.ONLINE{" "}
-          <span className="text-primary">//</span> v0.1.0
+          <span className="text-primary">{"//"}</span> v0.1.0
         </p>
       </div>
     </div>

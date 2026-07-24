@@ -11,7 +11,7 @@ export default function HomePage() {
       {/* Hero 占位：Phase 9 完善 */}
       <section>
         <p className="font-mono text-xs tracking-[0.3em] text-primary">
-          // PERSONAL DEVELOPER PLATFORM
+          {"// PERSONAL DEVELOPER PLATFORM"}
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight">
           个人开发者平台
