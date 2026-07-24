@@ -70,3 +70,87 @@ export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
 };
 
 export const PROJECT_STATUSES = Object.keys(PROJECT_STATUS_LABELS) as ProjectStatus[];
+
+
+/* ==================== Phase 2：智能简历生成器 ==================== */
+
+export type SkillImportance = "high" | "medium" | "low";
+
+/** JD 分析结果（jd_analysis jsonb） */
+export interface JdAnalysis {
+  title: string | null;
+  requiredSkills: { skill: string; importance: SkillImportance }[];
+  requiredExperience: string | null;
+  responsibilities: string[];
+  preferredSkills: string[];
+  keywords: string[];
+}
+
+/** 单个项目的岗位匹配结果（generated_content.matches 元素） */
+export interface ProjectMatch {
+  projectId: string;
+  score: number;
+  reason: string;
+  relevantSkills: string[];
+  suggestedDescription: string;
+}
+
+/** AI 自评结果（ai_evaluation jsonb 元素） */
+export interface ResumeEvaluation {
+  projectId: string;
+  clarityScore: number;
+  relevanceScore: number;
+  quantificationScore: number;
+  overallScore: number;
+  suggestions: string[];
+}
+
+/** 简历头部个人信息（generated_content.profile） */
+export interface ResumeProfile {
+  name: string;
+  title: string;
+  email: string;
+  github: string;
+  website: string;
+}
+
+/** generated_content jsonb 结构约定 */
+export interface ResumeGeneratedContent {
+  profile: ResumeProfile;
+  matches: ProjectMatch[];
+  /** projectId → 最终用于简历的描述（用户可在 AI 建议基础上修改） */
+  finalDescriptions: Record<string, string>;
+  /** 已勾选项目的展示顺序 */
+  projectOrder: string[];
+}
+
+/** user_modifications jsonb：仅记录 AI 原文与用户最终稿有差异的条目 */
+export type ResumeUserModifications = Record<string, { ai: string; user: string }>;
+
+/** 简历记录（对应 Supabase resumes 表） */
+export interface Resume {
+  id: string;
+  target_role: string | null;
+  jd_content: string | null;
+  jd_analysis: JdAnalysis | null;
+  selected_project_ids: string[];
+  generated_content: ResumeGeneratedContent | null;
+  ai_evaluation: ResumeEvaluation[] | null;
+  user_modifications: ResumeUserModifications | null;
+  version: number;
+  created_at: string;
+}
+
+export const EMPTY_RESUME_PROFILE: ResumeProfile = {
+  name: "",
+  title: "",
+  email: "",
+  github: "",
+  website: "",
+};
+
+export const SKILL_IMPORTANCE_LABELS: Record<SkillImportance, string> = {
+  high: "必备",
+  medium: "重要",
+  low: "了解",
+};
