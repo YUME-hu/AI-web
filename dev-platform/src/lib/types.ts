@@ -463,3 +463,32 @@ export const INTERVIEW_STATUS_LABELS: Record<InterviewQuestionStatus, string> = 
   practiced: "已练习",
   mastered: "已掌握",
 };
+
+
+/* ==================== Phase 9：个人信息（单行 profile 表） ==================== */
+
+/** 个人信息（对应 profile 表，单行 id=1；与简历 generated_content.profile 独立） */
+export interface Profile {
+  id: number;
+  name: string | null;
+  title: string | null;
+  bio: string | null;
+  email: string | null;
+  github: string | null;
+  website: string | null;
+  skills: string[];
+  avatar_url: string | null;
+  updated_at: string;
+}
+
+/** 个人信息表单值 */
+export interface ProfileFormValues {
+  name: string;
+  title: string;
+  bio: string;
+  email: string;
+  github: string;
+  website: string;
+  skills: string[];
+  avatar_url: string;
+}

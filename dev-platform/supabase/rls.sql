@@ -72,3 +72,10 @@ CREATE POLICY "管理员管会话" ON chat_sessions
 ALTER TABLE ai_usage_logs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "管理员读写用量日志" ON ai_usage_logs
   FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+
+-- ---------- profile（Phase 9） ----------
+ALTER TABLE profile ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "公开读个人信息" ON profile
+  FOR SELECT USING (TRUE);
+CREATE POLICY "管理员写个人信息" ON profile
+  FOR ALL USING (is_admin()) WITH CHECK (is_admin());

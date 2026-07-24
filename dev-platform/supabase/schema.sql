@@ -195,3 +195,22 @@ AS $$
   ORDER BY e.embedding <=> query_embedding
   LIMIT match_count;
 $$;
+
+
+-- ---------- profile（Phase 9：个人信息，单行表） ----------
+CREATE TABLE profile (
+  id INT PRIMARY KEY DEFAULT 1 CHECK (id = 1),  -- 单行表
+  name TEXT,
+  title TEXT,
+  bio TEXT,
+  email TEXT,
+  github TEXT,
+  website TEXT,
+  skills TEXT[] DEFAULT '{}',
+  avatar_url TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+INSERT INTO profile (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
+
+CREATE TRIGGER profile_updated_at BEFORE UPDATE ON profile
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
