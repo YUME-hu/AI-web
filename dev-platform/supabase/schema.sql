@@ -151,7 +151,9 @@ CREATE INDEX blog_posts_category_idx ON blog_posts (category);
 CREATE INDEX blog_posts_published_idx ON blog_posts (published_at);
 CREATE INDEX calendar_events_date_idx ON calendar_events (date);
 CREATE INDEX calendar_events_project_idx ON calendar_events (linked_project_id);
-CREATE INDEX embeddings_vector_idx ON embeddings USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+-- 用 HNSW 而非 IVFFLAT：HNSW 无需训练质心，空表建索引后增量插入也能正确检索
+-- （IVFFLAT 在空表上创建会返回空结果，且小数据量下 HNSW 精度更高）
+CREATE INDEX embeddings_vector_idx ON embeddings USING hnsw (embedding vector_cosine_ops);
 CREATE INDEX embeddings_source_idx ON embeddings (source_type, source_id);
 CREATE INDEX ai_usage_logs_created_at_idx ON ai_usage_logs (created_at);
 CREATE INDEX ai_usage_logs_module_idx ON ai_usage_logs (module);
