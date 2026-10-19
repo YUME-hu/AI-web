@@ -14,17 +14,27 @@ import {
 } from "recharts";
 import { AI_MODULE_LABELS, type AiModule, type UsageDailyPoint, type UsageModulePoint } from "@/lib/types";
 
-/** 模块五色：青/琥珀/绿/紫/灰 */
-const MODULE_COLORS = ["#00d4ff", "#ff8c00", "#00b578", "#8b5cf6", "#8b949e"];
+/**
+ * 模块配色：《星空》辅助色板（信标蓝 / 波斯橙 / 金秋沙 / 橄榄 / 石板）
+ * 全部取自 globals.css 的 --chart-* 令牌，不再出现青色 #00d4ff 或灰色 #8b949e。
+ */
+const MODULE_COLORS = ["#21467A", "#D45814", "#DBA972", "#7A7F4E", "#4C5A68"];
 
 const TOOLTIP_STYLE = {
-  backgroundColor: "#21262d",
-  border: "1px solid #30363d",
-  borderRadius: 2,
+  backgroundColor: "#FFFFFF",
+  border: "1px solid #191919",
+  borderRadius: 0,
   fontSize: 12,
-  fontFamily: "var(--font-mono)",
+  fontFamily: "var(--font-space-mono), monospace",
+  color: "#191919",
 };
-const TOOLTIP_LABEL_STYLE = { color: "#8b949e", marginBottom: 4 };
+const TOOLTIP_LABEL_STYLE = { color: "#5A554C", marginBottom: 4 };
+
+const AXIS_TICK = {
+  fontSize: 10,
+  fill: "#5A554C",
+  fontFamily: "var(--font-space-mono), monospace",
+};
 
 function moduleLabel(module: string): string {
   return AI_MODULE_LABELS[module as AiModule] ?? module;
@@ -42,41 +52,37 @@ export function UsageCharts({
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       {/* 近 30 天 Token 消耗柱状图 */}
-      <section className="clip-corner border border-border bg-card p-5">
+      <section className="card-hazard rivet border border-foreground bg-card p-5">
         <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
           近 30 天 Token 消耗
         </h3>
         <div className="mt-4 h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={daily} margin={{ top: 4, right: 4, bottom: 0, left: -16 }}>
-              <CartesianGrid stroke="#30363d" vertical={false} />
+              <CartesianGrid stroke="rgba(25,25,25,0.18)" vertical={false} />
               <XAxis
                 dataKey="date"
-                tick={{ fontSize: 10, fill: "#8b949e", fontFamily: "var(--font-mono)" }}
+                tick={AXIS_TICK}
                 tickLine={false}
-                axisLine={{ stroke: "#30363d" }}
+                axisLine={{ stroke: "#191919" }}
                 tickFormatter={(v: string) => v.slice(5)}
                 interval={4}
               />
-              <YAxis
-                tick={{ fontSize: 10, fill: "#8b949e", fontFamily: "var(--font-mono)" }}
-                tickLine={false}
-                axisLine={false}
-              />
+              <YAxis tick={AXIS_TICK} tickLine={false} axisLine={false} />
               <Tooltip
                 contentStyle={TOOLTIP_STYLE}
                 labelStyle={TOOLTIP_LABEL_STYLE}
-                cursor={{ fill: "#00d4ff10" }}
+                cursor={{ fill: "rgba(33,70,122,0.08)" }}
                 formatter={(value) => [`${Number(value).toLocaleString()} tokens`, "消耗"]}
               />
-              <Bar dataKey="tokens" fill="#00d4ff" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="tokens" fill="#21467A" radius={0} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </section>
 
       {/* 模块占比 donut */}
-      <section className="clip-corner border border-border bg-card p-5">
+      <section className="card-hazard rivet border border-foreground bg-card p-5">
         <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
           模块占比（近 30 天）
         </h3>
@@ -91,7 +97,7 @@ export function UsageCharts({
                     nameKey="module"
                     innerRadius="62%"
                     outerRadius="88%"
-                    paddingAngle={2}
+                    paddingAngle={1}
                     strokeWidth={0}
                   >
                     {byModule.map((_, i) => (
@@ -110,10 +116,10 @@ export function UsageCharts({
               </ResponsiveContainer>
               {/* 中心总量 */}
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <span className="font-mono text-xl font-bold text-primary">
+                <span className="tnum font-mono text-xl font-bold text-foreground">
                   {totalTokens.toLocaleString()}
                 </span>
-                <span className="font-mono text-[10px] text-muted-foreground">
+                <span className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground uppercase">
                   TOTAL TOKENS
                 </span>
               </div>
@@ -126,7 +132,7 @@ export function UsageCharts({
                   className="flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground"
                 >
                   <span
-                    className="size-2 rounded-[1px]"
+                    className="size-2 rounded-none"
                     style={{ backgroundColor: MODULE_COLORS[i % MODULE_COLORS.length] }}
                   />
                   {moduleLabel(m.module)} · {Math.round((m.tokens / totalTokens) * 100)}%

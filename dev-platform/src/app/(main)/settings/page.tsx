@@ -18,7 +18,7 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6">
       <section>
-        <p className="font-mono text-xs tracking-[0.3em] text-primary">
+        <p className="font-mono text-xs tracking-[0.3em] text-foreground">
           {"// SETTINGS"}
         </p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight">设置</h1>
@@ -26,7 +26,7 @@ export default async function SettingsPage() {
       </section>
 
       {/* 个人信息（首页 Hero 数据来源） */}
-      <section className="clip-corner border border-border bg-card p-5">
+      <section className="card-hazard rivet border border-foreground bg-card p-5">
         <h2 className="flex items-center gap-2 font-mono text-xs tracking-widest text-muted-foreground uppercase">
           <User className="size-4" />
           个人信息
@@ -41,14 +41,14 @@ export default async function SettingsPage() {
       <div className="grid gap-4 md:grid-cols-2">
         <Link
           href="/settings/usage"
-          className="clip-corner group border border-border bg-card p-5 transition-colors hover:border-primary/60"
+          className="card-hazard rivet group border border-foreground bg-card p-5 transition-colors hover:border-foreground"
         >
-          <ChartColumn className="size-5 text-primary" />
+          <ChartColumn className="size-5 text-chart-blue" />
           <div className="mt-3 flex items-center gap-2">
-            <h2 className="font-bold transition-colors group-hover:text-primary">
+            <h2 className="font-bold transition-colors group-hover:text-chart-blue">
               Token 监控
             </h2>
-            <ChevronRight className="size-4 text-muted-foreground transition-colors group-hover:text-primary" />
+            <ChevronRight className="size-4 text-muted-foreground transition-colors group-hover:text-chart-blue" />
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             AI 调用量、成本估算与当日限额

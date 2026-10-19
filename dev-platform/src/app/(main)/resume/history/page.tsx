@@ -32,7 +32,7 @@ export default async function ResumeHistoryPage() {
     <div className="space-y-6">
       <section className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-mono text-xs tracking-[0.3em] text-primary">
+          <p className="font-mono text-xs tracking-[0.3em] text-foreground">
             {"// RESUME ARCHIVE"}
           </p>
           <h1 className="mt-2 text-2xl font-bold tracking-tight">简历历史版本</h1>
@@ -42,7 +42,7 @@ export default async function ResumeHistoryPage() {
         </div>
         <Link
           href="/resume"
-          className="flex items-center gap-1.5 rounded-sm border border-primary/40 bg-primary/10 px-3 py-1.5 font-mono text-xs text-primary transition-colors hover:bg-primary/20"
+          className="flex items-center gap-1.5 border border-foreground bg-card px-3 py-1.5 font-mono text-xs text-foreground transition-none hover:bg-foreground hover:text-background"
         >
           <FilePlus2 className="size-3.5" />
           新建简历
@@ -57,10 +57,10 @@ export default async function ResumeHistoryPage() {
             <li key={resume.id}>
               <Link
                 href={`/resume/${resume.id}`}
-                className="group flex items-center gap-4 rounded-sm border border-border bg-card px-4 py-3 transition-colors hover:border-primary/60"
+                className="group flex items-center gap-4 rounded-sm border border-foreground bg-card px-4 py-3 transition-colors hover:border-foreground"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold transition-colors group-hover:text-primary">
+                  <p className="truncate font-semibold transition-colors group-hover:text-chart-blue">
                     {resume.target_role ?? "未命名岗位"}
                   </p>
                   <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
@@ -70,7 +70,7 @@ export default async function ResumeHistoryPage() {
                 <span className="shrink-0 font-mono text-xs text-muted-foreground">
                   匹配项目 {resume.selected_project_ids?.length ?? 0}
                 </span>
-                <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+                <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-chart-blue" />
               </Link>
             </li>
           ))}

@@ -26,7 +26,7 @@ const STATUS_STYLE: Record<ProjectStatus, string> = {
   in_progress: "border-accent/50 bg-accent/10 text-accent",
   completed: "border-success/50 bg-success/10 text-success",
   archived: "border-border bg-muted text-muted-foreground",
-  planned: "border-primary/50 bg-primary/10 text-primary",
+  planned: "border-foreground/40 bg-muted text-foreground",
 };
 
 async function getProject(id: string): Promise<Project | null> {
@@ -78,7 +78,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       <section>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="font-mono text-xs tracking-[0.3em] text-primary">
+            <p className="font-mono text-xs tracking-[0.3em] text-foreground">
               {"// PROJECT DETAIL"}
             </p>
             <h1 className="mt-2 text-3xl font-bold tracking-tight">
@@ -117,7 +117,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           {admin && (
             <Link
               href={`/projects/${project.id}/edit`}
-              className="flex items-center gap-1.5 rounded-sm border border-border px-3 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary"
+              className="flex items-center gap-1.5 rounded-sm border border-border px-3 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:border-foreground hover:text-chart-blue"
             >
               <Pencil className="size-3.5" />
               编辑
@@ -132,7 +132,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                 href={project.repo_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 rounded-sm border border-border bg-card px-3 py-1.5 font-mono text-xs text-foreground transition-colors hover:border-primary/60 hover:text-primary"
+                className="flex items-center gap-1.5 rounded-sm border border-foreground bg-card px-3 py-1.5 font-mono text-xs text-foreground transition-colors hover:border-foreground hover:text-chart-blue"
               >
                 <FolderGit2 className="size-3.5" />
                 源代码
@@ -143,7 +143,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                 href={project.demo_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 rounded-sm border border-primary/40 bg-primary/10 px-3 py-1.5 font-mono text-xs text-primary transition-colors hover:bg-primary/20"
+                className="flex items-center gap-1.5 border border-foreground bg-card px-3 py-1.5 font-mono text-xs text-foreground transition-none hover:bg-foreground hover:text-background"
               >
                 <ExternalLink className="size-3.5" />
                 在线预览
@@ -167,15 +167,15 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       {/* 核心功能 / 技术亮点 */}
       <div className="grid gap-4 md:grid-cols-2">
         {project.features.length > 0 && (
-          <section className="clip-corner border border-border bg-card p-5">
-            <h2 className="flex items-center gap-2 font-mono text-xs tracking-widest text-primary uppercase">
+          <section className="card-hazard rivet border border-foreground bg-card p-5">
+            <h2 className="flex items-center gap-2 font-mono text-xs tracking-widest text-muted-foreground uppercase">
               <Layers className="size-4" />
               核心功能
             </h2>
             <ul className="mt-3 space-y-2">
               {project.features.map((feature, i) => (
                 <li key={i} className="flex gap-2 text-sm text-foreground/90">
-                  <span className="font-mono text-primary">▸</span>
+                  <span className="font-mono text-foreground">▸</span>
                   {feature}
                 </li>
               ))}
@@ -183,7 +183,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           </section>
         )}
         {project.highlights.length > 0 && (
-          <section className="clip-corner border border-border bg-card p-5">
+          <section className="card-hazard rivet border border-foreground bg-card p-5">
             <h2 className="flex items-center gap-2 font-mono text-xs tracking-widest text-accent uppercase">
               <Sparkles className="size-4" />
               技术亮点
@@ -257,8 +257,8 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                     href={`/blog/${post.slug}`}
                     className="group flex items-baseline gap-2 text-sm"
                   >
-                    <span className="font-mono text-primary">▸</span>
-                    <span className="text-foreground/90 transition-colors group-hover:text-primary">
+                    <span className="font-mono text-foreground">▸</span>
+                    <span className="text-foreground/90 transition-colors group-hover:text-chart-blue">
                       {post.title}
                     </span>
                     {post.published_at && (

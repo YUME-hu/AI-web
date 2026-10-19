@@ -32,7 +32,7 @@ const DIFFICULTY_STYLE: Record<number, string> = {
 const DIFFICULTY_LABELS: Record<number, string> = { 1: "简单", 2: "中等", 3: "困难" };
 
 const CATEGORY_BADGE_STYLE: Record<InterviewCategory, string> = {
-  technical: "border-primary/50 bg-primary/10 text-primary",
+  technical: "border-chart-blue/50 bg-chart-blue/10 text-chart-blue",
   project: "border-success/50 bg-success/10 text-success",
   system_design: "border-accent/50 bg-accent/10 text-accent",
   behavioral: "border-border bg-muted text-muted-foreground",
@@ -40,7 +40,7 @@ const CATEGORY_BADGE_STYLE: Record<InterviewCategory, string> = {
 
 const STATUS_BADGE_STYLE: Record<InterviewQuestionStatus, string> = {
   new: "border-border bg-muted text-muted-foreground",
-  practiced: "border-primary/50 bg-primary/10 text-primary",
+  practiced: "border-foreground/40 bg-muted text-foreground",
   mastered: "border-success/50 bg-success/10 text-success",
 };
 
@@ -142,7 +142,7 @@ export function InterviewHome({
   return (
     <div className="space-y-6">
       {/* 操作区 */}
-      <section className="clip-corner border border-border bg-card p-5">
+      <section className="card-hazard rivet border border-foreground bg-card p-5">
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1.5">
             <p className="font-mono text-[10px] text-muted-foreground">
@@ -244,7 +244,7 @@ export function InterviewHome({
                 className={cn(
                   "border-b-2 px-4 py-2.5 font-mono text-xs transition-colors",
                   category === tab.key
-                    ? "border-primary text-primary"
+                    ? "border-foreground bg-foreground text-background"
                     : "border-transparent text-muted-foreground hover:text-foreground",
                 )}
               >
@@ -284,7 +284,7 @@ export function InterviewHome({
               <Link
                 key={q.id}
                 href={`/interview/practice/${q.id}`}
-                className="clip-corner group flex flex-col border border-border bg-card p-4 transition-colors hover:border-primary/60"
+                className="card-hazard rivet group flex flex-col border border-foreground bg-card p-4 transition-colors hover:border-foreground"
               >
                 <div className="flex flex-wrap items-center gap-1.5">
                   <Badge
@@ -306,7 +306,7 @@ export function InterviewHome({
                     {INTERVIEW_STATUS_LABELS[q.status]}
                   </Badge>
                 </div>
-                <p className="mt-2.5 line-clamp-2 text-sm font-medium transition-colors group-hover:text-primary">
+                <p className="mt-2.5 line-clamp-2 text-sm font-medium transition-colors group-hover:text-chart-blue">
                   {q.question}
                 </p>
                 {q.assessment_points.length > 0 && (
@@ -350,10 +350,10 @@ export function InterviewHome({
               <li key={m.id}>
                 <Link
                   href={`/interview/mock/${m.id}`}
-                  className="group flex items-center gap-4 rounded-sm border border-border bg-card px-4 py-3 transition-colors hover:border-primary/60"
+                  className="group flex items-center gap-4 rounded-sm border border-foreground bg-card px-4 py-3 transition-colors hover:border-foreground"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold transition-colors group-hover:text-primary">
+                    <p className="truncate font-semibold transition-colors group-hover:text-chart-blue">
                       {m.target_role ?? "未命名岗位"}
                     </p>
                     <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
@@ -361,7 +361,7 @@ export function InterviewHome({
                     </p>
                   </div>
                   {m.evaluation && (
-                    <span className="font-mono text-sm font-bold text-primary">
+                    <span className="font-mono text-sm font-bold text-foreground">
                       {m.evaluation.overallScore}
                       <span className="text-[10px] text-muted-foreground"> 分</span>
                     </span>
@@ -377,7 +377,7 @@ export function InterviewHome({
                   >
                     {m.completed_at ? "已完成" : "进行中"}
                   </Badge>
-                  <span className="flex items-center gap-1 font-mono text-[10px] text-muted-foreground group-hover:text-primary">
+                  <span className="flex items-center gap-1 font-mono text-[10px] text-muted-foreground group-hover:text-chart-blue">
                     {m.completed_at ? "查看报告" : "继续面试"}
                     <ChevronRight className="size-3.5" />
                   </span>

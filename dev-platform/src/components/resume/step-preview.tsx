@@ -59,7 +59,7 @@ export function StepPreview({
   return (
     <div className="space-y-4">
       {/* 个人信息编辑 */}
-      <section className="clip-corner border border-border bg-card p-5">
+      <section className="card-hazard rivet border border-foreground bg-card p-5">
         <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
           个人信息（失焦自动保存）
         </h3>
@@ -86,7 +86,7 @@ export function StepPreview({
       </section>
 
       {/* 简历文档预览 */}
-      <section className="clip-corner border border-border bg-card p-6 md:p-8">
+      <section className="card-hazard rivet border border-foreground bg-card p-6 md:p-8">
         {items.length === 0 ? (
           <div className="py-12 text-center">
             <p className="text-sm text-muted-foreground">
@@ -109,7 +109,7 @@ export function StepPreview({
             <div className="divider-tactical mt-4" />
 
             {/* 项目经历 */}
-            <h4 className="mt-5 font-mono text-xs tracking-widest text-primary uppercase">
+            <h4 className="mt-5 font-mono text-xs tracking-widest text-muted-foreground uppercase">
               项目经历
             </h4>
             <div className="mt-3 space-y-5">
@@ -139,7 +139,7 @@ export function StepPreview({
                       onClick={() => onMove(project.id, -1)}
                       disabled={index === 0}
                       aria-label="上移"
-                      className="text-muted-foreground transition-colors hover:text-primary disabled:opacity-30"
+                      className="text-muted-foreground transition-colors hover:text-chart-blue disabled:opacity-30"
                     >
                       <ArrowUp className="size-4" />
                     </button>
@@ -147,7 +147,7 @@ export function StepPreview({
                       onClick={() => onMove(project.id, 1)}
                       disabled={index === items.length - 1}
                       aria-label="下移"
-                      className="text-muted-foreground transition-colors hover:text-primary disabled:opacity-30"
+                      className="text-muted-foreground transition-colors hover:text-chart-blue disabled:opacity-30"
                     >
                       <ArrowDown className="size-4" />
                     </button>
@@ -159,7 +159,7 @@ export function StepPreview({
             {/* 技能 */}
             {skills.length > 0 && (
               <>
-                <h4 className="mt-6 font-mono text-xs tracking-widest text-primary uppercase">
+                <h4 className="mt-6 font-mono text-xs tracking-widest text-muted-foreground uppercase">
                   技能
                 </h4>
                 <p className="mt-2 font-mono text-xs leading-relaxed text-foreground/90">

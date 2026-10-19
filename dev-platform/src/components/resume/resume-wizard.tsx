@@ -283,7 +283,7 @@ export function ResumeWizard({
             className={cn(
               "flex items-center gap-2 border-b-2 px-4 py-2.5 font-mono text-xs transition-colors",
               step === s.key
-                ? "border-primary text-primary"
+                ? "border-foreground bg-foreground text-background"
                 : "border-transparent text-muted-foreground hover:text-foreground",
             )}
           >

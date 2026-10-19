@@ -9,10 +9,16 @@ export async function GET() {
   return NextResponse.json({ profile });
 }
 
-/** URL 字段校验：http(s) 开头或空 */
+/**
+ * URL 字段校验：http(s) 外链、站内绝对路径，或空。
+ *
+ * 站内路径（单个 `/` 开头）是给头像这类随仓库走的静态资源用的，
+ * 同一个值在本地与线上都成立；但必须排除 `//evil.com` 这种协议相对地址，
+ * 否则会变成开放重定向/外链跳板。
+ */
 function validUrl(value: string): boolean {
   if (!value) return true;
-  return /^https?:\/\/.+/.test(value);
+  return /^https?:\/\/.+/.test(value) || /^\/(?!\/).+/.test(value);
 }
 
 /** PATCH /api/profile — 更新个人信息（仅管理员，upsert id=1） */

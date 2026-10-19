@@ -3,37 +3,23 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Calendar,
-  FileBadge,
-  FileText,
-  FolderKanban,
-  Hexagon,
-  Home,
-  MessageSquare,
-  Settings,
-  Swords,
-  X,
-  type LucideIcon,
-} from "lucide-react";
+import { X } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-
-const ICONS: Record<string, LucideIcon> = {
-  "/": Home,
-  "/projects": FolderKanban,
-  "/blog": FileText,
-  "/chat": MessageSquare,
-  "/resume": FileBadge,
-  "/interview": Swords,
-  "/calendar": Calendar,
-  "/settings": Settings,
-};
+import type { Profile } from "@/lib/types";
+import { MissionAvatar } from "@/components/ui/mission-avatar";
+import { MissionBadge } from "./mission-badge";
 
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/** 两位编号：01..08，取自全站导航顺序而非分组内序号 */
+function codeOf(href: string) {
+  const index = NAV_ITEMS.findIndex((item) => item.href === href);
+  return String(index < 0 ? 99 : index + 1).padStart(2, "0");
 }
 
 function NavGroup({
@@ -54,9 +40,8 @@ function NavGroup({
       <p className="mb-2 px-2 font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
         {label}
       </p>
-      <ul className="space-y-0.5">
+      <ul className="space-y-px">
         {items.map((item) => {
-          const Icon = ICONS[item.href] ?? Hexagon;
           const active = isActive(pathname, item.href);
           return (
             <li key={item.href}>
@@ -64,19 +49,25 @@ function NavGroup({
                 href={item.href}
                 onClick={onNavigate}
                 className={cn(
-                  "group flex items-center gap-3 border-l-2 px-2 py-2 text-sm transition-colors",
+                  // 左侧 4px 导轨：激活时是警示红，否则完全透明（保持对齐不跳动）
+                  "group flex items-baseline gap-2.5 border-l-4 py-2 pr-2 pl-2.5",
                   active
-                    ? "border-primary bg-sidebar-accent text-primary"
-                    : "border-transparent text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
+                    ? "border-primary bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "border-transparent text-muted-foreground hover:border-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
-                <Icon className="size-4 shrink-0" />
-                <span>{item.title}</span>
-                {active && (
-                  <span className="ml-auto font-mono text-[10px] text-primary">
-                    ▸
-                  </span>
-                )}
+                {/* 编号：等宽，比中文大 2px；非激活态为炭黑 */}
+                <span
+                  className={cn(
+                    "shrink-0 font-mono text-[15px] leading-none font-bold tracking-wider tabular-nums",
+                    active ? "text-sidebar-accent-foreground" : "text-foreground",
+                  )}
+                >
+                  [{codeOf(item.href)}]
+                </span>
+                <span className="text-[13px] leading-none tracking-wide">
+                  {item.title}
+                </span>
               </Link>
             </li>
           );
@@ -96,6 +87,10 @@ export function AppSidebar({
   const pathname = usePathname();
   // 登录后才显示管理分组（初始为 false，避免管理入口对访客闪现）
   const [loggedIn, setLoggedIn] = useState(false);
+  // 操作员档案（公开数据，用于侧栏底部的头像 + 名称）
+  const [profile, setProfile] = useState<
+    Pick<Profile, "name" | "avatar_url"> | null
+  >(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -108,17 +103,36 @@ export function AppSidebar({
     return () => subscription.unsubscribe();
   }, []);
 
+  // 操作员档案（公开接口，用于侧栏底部的头像 + 名称；失败则保留占位）
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/profile")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (alive && d?.profile) {
+          setProfile({
+            name: d.profile.name ?? null,
+            avatar_url: d.profile.avatar_url ?? null,
+          });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   const content = (
     <div className="flex h-full flex-col">
-      {/* Logo 区 */}
-      <div className="flex h-14 shrink-0 items-center gap-2 border-b border-sidebar-border px-5">
-        <Hexagon className="size-5 text-primary" />
-        <div className="leading-tight">
-          <p className="font-mono text-sm font-bold tracking-wider text-foreground">
-            DEV<span className="text-primary">_</span>PLATFORM
+      {/* 徽章区：任务徽章 + 字标 + 编制信息 */}
+      <div className="flex h-12 shrink-0 items-center gap-2.5 border-b border-sidebar-border px-4">
+        <MissionBadge className="size-[30px] shrink-0" />
+        <div className="min-w-0 leading-none">
+          <p className="font-mono text-[12px] font-bold tracking-[0.2em] whitespace-nowrap text-foreground uppercase">
+            DEV<span className="text-foreground">_</span>PLATFORM
           </p>
-          <p className="font-mono text-[10px] text-muted-foreground">
-            PERSONAL CONSOLE
+          <p className="mt-1.5 font-mono text-[8px] tracking-[0.16em] whitespace-nowrap text-muted-foreground uppercase">
+            EST. 2026 <span className="opacity-60">{"//"}</span> SYS.ONLINE
           </p>
         </div>
         <button
@@ -132,17 +146,43 @@ export function AppSidebar({
 
       {/* 导航 */}
       <nav className="flex-1 space-y-6 overflow-y-auto py-5">
-        <NavGroup label="公开 // Public" adminOnly={false} pathname={pathname} onNavigate={onClose} />
+        <NavGroup
+          label="公开 // Public"
+          adminOnly={false}
+          pathname={pathname}
+          onNavigate={onClose}
+        />
         {loggedIn && (
-          <NavGroup label="管理 // Admin" adminOnly pathname={pathname} onNavigate={onClose} />
+          <NavGroup
+            label="管理 // Admin"
+            adminOnly
+            pathname={pathname}
+            onNavigate={onClose}
+          />
         )}
       </nav>
 
-      {/* 底部状态 */}
-      <div className="shrink-0 border-t border-sidebar-border px-5 py-3">
-        <p className="font-mono text-[10px] text-muted-foreground">
-          <span className="text-success">●</span> SYS.ONLINE{" "}
-          <span className="text-primary">{"//"}</span> v0.1.0
+      {/* 底部：操作员档案 + 系统状态 */}
+      <div className="shrink-0 border-t border-sidebar-border px-4 py-3">
+        <div className="flex items-center gap-2.5">
+          <MissionAvatar
+            src={profile?.avatar_url}
+            name={profile?.name}
+            size={32}
+          />
+          <div className="min-w-0 leading-none">
+            <p className="truncate font-mono text-[11px] font-bold tracking-[0.1em] text-foreground uppercase">
+              {profile?.name || "OPERATOR"}
+            </p>
+            <p className="mt-1.5 font-mono text-[9px] tracking-[0.16em] text-muted-foreground uppercase">
+              [ADMIN]
+            </p>
+          </div>
+        </div>
+        <p className="mt-3 flex items-center gap-1.5 font-mono text-[9px] tracking-[0.14em] text-muted-foreground uppercase">
+          <span className="size-[5px] shrink-0 bg-success" aria-hidden />
+          SYS.ONLINE
+          <span className="opacity-50">{"//"}</span> v0.1.0
         </p>
       </div>
     </div>

@@ -69,7 +69,7 @@ export default async function BlogPage({
       {/* 页头 */}
       <section className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-mono text-xs tracking-[0.3em] text-primary">
+          <p className="font-mono text-xs tracking-[0.3em] text-foreground">
             {"// BLOG FEED"}
           </p>
           <h1 className="mt-2 text-2xl font-bold tracking-tight">博客</h1>
@@ -80,7 +80,7 @@ export default async function BlogPage({
         {user && (
           <Link
             href="/blog/new"
-            className="flex items-center gap-1.5 rounded-sm border border-primary/40 bg-primary/10 px-3 py-1.5 font-mono text-xs text-primary transition-colors hover:bg-primary/20"
+            className="flex items-center gap-1.5 border border-foreground bg-card px-3 py-1.5 font-mono text-xs text-foreground transition-none hover:bg-foreground hover:text-background"
           >
             <PenLine className="size-3.5" />
             写博客
@@ -97,7 +97,7 @@ export default async function BlogPage({
           className={cn(
             "border-b-2 px-4 py-2.5 font-mono text-xs transition-colors",
             !category
-              ? "border-primary text-primary"
+              ? "border-foreground bg-foreground text-background"
               : "border-transparent text-muted-foreground hover:text-foreground",
           )}
         >
@@ -110,7 +110,7 @@ export default async function BlogPage({
             className={cn(
               "border-b-2 px-4 py-2.5 font-mono text-xs transition-colors",
               category === c
-                ? "border-primary text-primary"
+                ? "border-foreground bg-foreground text-background"
                 : "border-transparent text-muted-foreground hover:text-foreground",
             )}
           >
@@ -132,7 +132,7 @@ export default async function BlogPage({
               className={cn(
                 "rounded-sm border px-2 py-0.5 font-mono text-[11px] transition-colors",
                 tag === t
-                  ? "border-primary/60 bg-primary/10 text-primary"
+                  ? "border-chart-orange/60 bg-chart-orange/10 text-chart-orange"
                   : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
               )}
             >
@@ -148,7 +148,7 @@ export default async function BlogPage({
           {posts.map((post) => (
             <article
               key={post.id}
-              className="clip-corner group relative border border-border bg-card p-5 transition-colors hover:border-primary/60"
+              className="card-hazard rivet group relative border border-foreground bg-card p-5 transition-colors hover:border-foreground"
             >
               <Link href={`/blog/${post.slug}`} className="block">
                 <div className="flex flex-wrap items-center gap-2">
@@ -180,7 +180,7 @@ export default async function BlogPage({
                   </span>
                 </div>
 
-                <h2 className="mt-2.5 text-lg font-bold transition-colors group-hover:text-primary">
+                <h2 className="mt-2.5 text-lg font-bold transition-colors group-hover:text-chart-blue">
                   {post.title}
                 </h2>
                 {post.excerpt && (
@@ -206,7 +206,7 @@ export default async function BlogPage({
               {user && (
                 <Link
                   href={`/blog/edit/${post.id}`}
-                  className="absolute right-4 bottom-4 flex items-center gap-1 font-mono text-[10px] text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-primary"
+                  className="absolute right-4 bottom-4 flex items-center gap-1 font-mono text-[10px] text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-chart-blue"
                 >
                   <Pencil className="size-3" />
                   编辑

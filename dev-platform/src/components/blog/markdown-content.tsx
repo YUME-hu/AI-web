@@ -27,7 +27,7 @@ const components: Components = {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-primary underline underline-offset-4 transition-colors hover:text-glow-primary"
+      className="text-chart-blue underline underline-offset-4 transition-colors hover:underline"
     >
       {children}
     </a>

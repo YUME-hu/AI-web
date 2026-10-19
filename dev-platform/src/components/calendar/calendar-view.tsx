@@ -53,7 +53,7 @@ interface RbcCalEvent extends RBCEvent {
 
 /** 弹层类型徽标配色（与事件条分色一致） */
 const TYPE_BADGE_STYLE: Record<CalendarEventType, string> = {
-  project_start: "border-primary/50 bg-primary/10 text-primary",
+  project_start: "border-chart-blue/50 bg-chart-blue/10 text-chart-blue",
   project_end: "border-success/50 bg-success/10 text-success",
   blog_post: "border-accent/50 bg-accent/10 text-accent",
   manual: "border-border bg-muted text-muted-foreground",
@@ -104,7 +104,7 @@ export function CalendarView({ events }: { events: CalendarViewEvent[] }) {
           onClick={() => setSelected(null)}
         >
           <div
-            className="clip-corner w-full max-w-md border border-border bg-card p-6"
+            className="card-hazard rivet w-full max-w-md border border-foreground bg-card p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
@@ -140,7 +140,7 @@ export function CalendarView({ events }: { events: CalendarViewEvent[] }) {
               {selected.linked_project_id && (
                 <Link
                   href={`/projects/${selected.linked_project_id}`}
-                  className="flex items-center gap-1.5 rounded-sm border border-border px-2.5 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary"
+                  className="flex items-center gap-1.5 rounded-sm border border-border px-2.5 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:border-foreground hover:text-chart-blue"
                 >
                   <FolderKanban className="size-3.5" />
                   {selected.projectTitle ?? "关联项目"}
@@ -149,7 +149,7 @@ export function CalendarView({ events }: { events: CalendarViewEvent[] }) {
               {selected.blogSlug && (
                 <Link
                   href={`/blog/${selected.blogSlug}`}
-                  className="flex items-center gap-1.5 rounded-sm border border-border px-2.5 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary"
+                  className="flex items-center gap-1.5 rounded-sm border border-border px-2.5 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:border-foreground hover:text-chart-blue"
                 >
                   <ExternalLink className="size-3.5" />
                   {selected.blogTitle ?? "关联文章"}

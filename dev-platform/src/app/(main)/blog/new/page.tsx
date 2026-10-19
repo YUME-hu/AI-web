@@ -20,7 +20,7 @@ export default async function BlogNewPage() {
   return (
     <div className="space-y-6">
       <section>
-        <p className="font-mono text-xs tracking-[0.3em] text-primary">
+        <p className="font-mono text-xs tracking-[0.3em] text-foreground">
           {"// NEW POST"}
         </p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight">写博客</h1>

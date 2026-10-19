@@ -12,16 +12,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-background">
-      <AppSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <AppHeader onMenuClick={() => setMobileOpen(true)} />
-        <main className="bg-grid-sm flex-1 overflow-y-auto">
-          <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8">
-            {children}
-          </div>
-        </main>
+    <>
+      {/* 顶部固定 NASA 复古四色条：4px，fixed 不占布局流 */}
+      <div className="nasa-bar fixed inset-x-0 top-0 z-[60]" aria-hidden />
+
+      {/* pt-1 给四色条留出 4px，避免遮住内容 */}
+      <div className="blueprint-grid flex h-dvh overflow-hidden bg-background pt-1">
+        <AppSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <AppHeader onMenuClick={() => setMobileOpen(true)} />
+          {/* 蓝图网格由外壳统一提供，主区不再单独铺底纹 */}
+          <main className="flex-1 overflow-y-auto">
+            <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

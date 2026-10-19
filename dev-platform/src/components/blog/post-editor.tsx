@@ -68,7 +68,7 @@ function ToolbarButton({
       className={cn(
         "rounded-sm p-1.5 transition-colors",
         active
-          ? "bg-primary/15 text-primary"
+          ? "bg-foreground text-background"
           : "text-muted-foreground hover:bg-muted hover:text-foreground",
         disabled && "pointer-events-none opacity-40",
       )}
@@ -417,7 +417,7 @@ export function PostEditor({
             href={`/blog/${values.slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-xs text-muted-foreground transition-colors hover:text-primary"
+            className="font-mono text-xs text-muted-foreground transition-colors hover:text-chart-blue"
           >
             查看公开页 →
           </a>

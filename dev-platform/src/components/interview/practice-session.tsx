@@ -99,11 +99,11 @@ export function PracticeSession({
   return (
     <div className="space-y-5">
       {/* 题目卡 */}
-      <section className="clip-corner border border-border bg-card p-5">
+      <section className="card-hazard rivet border border-foreground bg-card p-5">
         <div className="flex flex-wrap items-center gap-2">
           <Badge
             variant="outline"
-            className="rounded-sm border-primary/50 bg-primary/10 text-primary"
+            className="border-chart-blue/50 bg-chart-blue/10 text-chart-blue"
           >
             {INTERVIEW_CATEGORY_LABELS[question.category]}
           </Badge>
@@ -125,7 +125,7 @@ export function PracticeSession({
           {linkedProject && (
             <Link
               href={`/projects/${linkedProject.id}`}
-              className="ml-auto flex items-center gap-1.5 font-mono text-xs text-muted-foreground transition-colors hover:text-primary"
+              className="ml-auto flex items-center gap-1.5 font-mono text-xs text-muted-foreground transition-colors hover:text-chart-blue"
             >
               <FolderKanban className="size-3.5" />
               {linkedProject.title}
@@ -153,7 +153,7 @@ export function PracticeSession({
       </section>
 
       {/* 回答区 */}
-      <section className="clip-corner border border-border bg-card p-5">
+      <section className="card-hazard rivet border border-foreground bg-card p-5">
         <div className="flex items-center justify-between">
           <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
             你的回答
@@ -215,12 +215,12 @@ export function PracticeSession({
 
       {/* AI 反馈 */}
       {feedback && (
-        <section className="clip-corner border border-primary/30 bg-card p-5">
+        <section className="card-hazard rivet border border-foreground bg-card p-5">
           <div className="flex items-center justify-between">
-            <h3 className="font-mono text-xs tracking-widest text-primary uppercase">
+            <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
               AI 评估反馈
             </h3>
-            <span className="font-mono text-2xl font-bold text-primary">
+            <span className="font-mono text-2xl font-bold text-foreground">
               {feedback.overallScore}
               <span className="text-xs text-muted-foreground"> / 10</span>
             </span>
@@ -272,10 +272,10 @@ export function PracticeSession({
 
       {/* 参考答案 / 追问方向（默认折叠，防先看答案） */}
       {(question.reference_answer || question.follow_ups.length > 0) && (
-        <section className="clip-corner border border-border bg-card">
+        <section className="card-hazard rivet border border-foreground bg-card">
           {question.reference_answer && (
             <details className="group border-b border-border last:border-0">
-              <summary className="cursor-pointer px-5 py-3 font-mono text-xs text-muted-foreground transition-colors select-none hover:text-primary">
+              <summary className="cursor-pointer px-5 py-3 font-mono text-xs text-muted-foreground transition-colors select-none hover:text-chart-blue">
                 ▶ 参考答案（点击展开）
               </summary>
               <p className="px-5 pb-4 text-sm leading-relaxed whitespace-pre-wrap text-foreground/90">
@@ -285,13 +285,13 @@ export function PracticeSession({
           )}
           {question.follow_ups.length > 0 && (
             <details className="group">
-              <summary className="cursor-pointer px-5 py-3 font-mono text-xs text-muted-foreground transition-colors select-none hover:text-primary">
+              <summary className="cursor-pointer px-5 py-3 font-mono text-xs text-muted-foreground transition-colors select-none hover:text-chart-blue">
                 ▶ 可能的追问方向（点击展开）
               </summary>
               <ul className="space-y-1.5 px-5 pb-4">
                 {question.follow_ups.map((f, i) => (
                   <li key={i} className="flex gap-2 text-sm text-muted-foreground">
-                    <span className="font-mono text-primary">▸</span>
+                    <span className="font-mono text-foreground">▸</span>
                     {f}
                   </li>
                 ))}

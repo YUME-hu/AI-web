@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 /** 技能重要度分色：high=琥珀、medium=青、low=灰 */
 const IMPORTANCE_STYLE: Record<SkillImportance, string> = {
   high: "border-accent/50 bg-accent/10 text-accent",
-  medium: "border-primary/50 bg-primary/10 text-primary",
+  medium: "border-chart-orange/50 bg-chart-orange/10 text-chart-orange",
   low: "border-border bg-muted text-muted-foreground",
 };
 
@@ -31,10 +31,10 @@ export function StepJdAnalysis({ resume }: { resume: Resume }) {
   return (
     <div className="space-y-4">
       {/* 岗位概览 */}
-      <section className="clip-corner border border-border bg-card p-5">
+      <section className="card-hazard rivet border border-foreground bg-card p-5">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
           <div className="flex items-center gap-2">
-            <Briefcase className="size-4 text-primary" />
+            <Briefcase className="size-4 text-chart-blue" />
             <span className="text-lg font-bold">
               {analysis.title ?? resume.target_role ?? "目标岗位"}
             </span>
@@ -55,7 +55,7 @@ export function StepJdAnalysis({ resume }: { resume: Resume }) {
 
       <div className="grid gap-4 md:grid-cols-2">
         {/* 技能要求 */}
-        <section className="clip-corner border border-border bg-card p-5">
+        <section className="card-hazard rivet border border-foreground bg-card p-5">
           <h3 className={SECTION_TITLE}>
             <ListChecks className="size-4" />
             技能要求
@@ -77,7 +77,7 @@ export function StepJdAnalysis({ resume }: { resume: Resume }) {
         </section>
 
         {/* 岗位职责 */}
-        <section className="clip-corner border border-border bg-card p-5">
+        <section className="card-hazard rivet border border-foreground bg-card p-5">
           <h3 className={SECTION_TITLE}>
             <ListChecks className="size-4" />
             岗位职责
@@ -85,7 +85,7 @@ export function StepJdAnalysis({ resume }: { resume: Resume }) {
           <ul className="mt-3 space-y-2">
             {analysis.responsibilities.map((r, i) => (
               <li key={i} className="flex gap-2 text-sm text-foreground/90">
-                <span className="font-mono text-primary">▸</span>
+                <span className="font-mono text-foreground">▸</span>
                 {r}
               </li>
             ))}
@@ -96,7 +96,7 @@ export function StepJdAnalysis({ resume }: { resume: Resume }) {
         </section>
 
         {/* 加分项 */}
-        <section className="clip-corner border border-border bg-card p-5">
+        <section className="card-hazard rivet border border-foreground bg-card p-5">
           <h3 className={SECTION_TITLE}>
             <Star className="size-4" />
             加分项
@@ -114,7 +114,7 @@ export function StepJdAnalysis({ resume }: { resume: Resume }) {
         </section>
 
         {/* 关键词 */}
-        <section className="clip-corner border border-border bg-card p-5">
+        <section className="card-hazard rivet border border-foreground bg-card p-5">
           <h3 className={SECTION_TITLE}>
             <KeySquare className="size-4" />
             ATS 关键词

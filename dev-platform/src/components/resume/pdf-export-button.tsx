@@ -28,7 +28,7 @@ export function PdfExportButton({
     <PDFDownloadLink
       document={<ResumePdf data={data} />}
       fileName={fileName}
-      className="flex items-center gap-1.5 rounded-sm border border-primary/40 bg-primary/10 px-3 py-1.5 font-mono text-xs text-primary transition-colors hover:bg-primary/20"
+      className="flex items-center gap-1.5 border border-foreground bg-card px-3 py-1.5 font-mono text-xs text-foreground transition-none hover:bg-foreground hover:text-background"
     >
       {({ loading }) => (
         <>

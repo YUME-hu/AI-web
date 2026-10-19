@@ -18,7 +18,7 @@ const STATUS_STYLE: Record<ProjectStatus, string> = {
   in_progress: "border-accent/50 bg-accent/10 text-accent",
   completed: "border-success/50 bg-success/10 text-success",
   archived: "border-border bg-muted text-muted-foreground",
-  planned: "border-primary/50 bg-primary/10 text-primary",
+  planned: "border-foreground/40 bg-muted text-foreground",
 };
 
 function formatRange(project: Project): string | null {
@@ -66,7 +66,7 @@ export default async function ProjectsPage({
       {/* 页头 */}
       <section className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-mono text-xs tracking-[0.3em] text-primary">
+          <p className="font-mono text-xs tracking-[0.3em] text-foreground">
             {"// PROJECT ARCHIVE"}
           </p>
           <h1 className="mt-2 text-2xl font-bold tracking-tight">项目库</h1>
@@ -77,7 +77,7 @@ export default async function ProjectsPage({
         {user && (
           <Link
             href="/projects/import"
-            className="flex items-center gap-1.5 rounded-sm border border-primary/40 bg-primary/10 px-3 py-1.5 font-mono text-xs text-primary transition-colors hover:bg-primary/20"
+            className="flex items-center gap-1.5 border border-foreground bg-card px-3 py-1.5 font-mono text-xs text-foreground transition-none hover:bg-foreground hover:text-background"
           >
             <FileUp className="size-3.5" />
             导入项目
@@ -99,10 +99,10 @@ export default async function ProjectsPage({
               <Link
                 key={project.id}
                 href={`/projects/${project.id}`}
-                className="clip-corner group flex flex-col border border-border bg-card p-4 transition-colors hover:border-primary/60"
+                className="card-hazard rivet group flex flex-col border border-foreground bg-card p-4 transition-colors hover:border-foreground"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <h3 className="font-semibold transition-colors group-hover:text-primary">
+                  <h3 className="font-semibold transition-colors group-hover:text-chart-blue">
                     {project.title}
                   </h3>
                   <Badge

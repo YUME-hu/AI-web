@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createClient, isAdmin } from "@/lib/supabase/server";
 import { computeExcerpt, computeReadingTime } from "@/lib/blog";
 import { deleteBlogPostEvents, syncBlogPostEvent } from "@/lib/calendar";

@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 /** 匹配度分色：>80 青 / 50-80 琥珀 / <50 灰 */
 function scoreTextClass(score: number): string {
-  if (score > 80) return "text-primary";
+  if (score > 80) return "text-chart-orange";
   if (score >= 50) return "text-accent";
   return "text-muted-foreground";
 }
@@ -123,7 +123,7 @@ export function StepProjectMatch({
       </div>
 
       {/* 技能缺口分析（Phase 7） */}
-      <section className="border border-border bg-card/50 p-4">
+      <section className="border border-foreground bg-card/50 p-4">
         <div className="flex flex-wrap items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
@@ -174,7 +174,7 @@ export function StepProjectMatch({
               </Button>
               <Link
                 href={`/projects/recommended?resume_id=${resumeId}`}
-                className="flex items-center gap-1 font-mono text-xs text-primary hover:underline"
+                className="flex items-center gap-1 font-mono text-xs text-chart-blue hover:underline"
               >
                 查看方案
                 <ArrowRight className="size-3" />
@@ -211,7 +211,7 @@ export function StepProjectMatch({
                 </div>
                 <Link
                   href={`/projects/recommended?resume_id=${resumeId}`}
-                  className="inline-flex items-center gap-1.5 font-mono text-xs text-primary hover:underline"
+                  className="inline-flex items-center gap-1.5 font-mono text-xs text-chart-blue hover:underline"
                 >
                   查看推荐项目方案（{gapResult.recommendations.length} 个）
                   <ArrowRight className="size-3.5" />
@@ -246,7 +246,7 @@ export function StepProjectMatch({
             <section
               key={match.projectId}
               className={cn(
-                "clip-corner border border-border bg-card p-4 transition-opacity",
+                "card-hazard rivet border border-foreground bg-card p-4 transition-opacity",
                 !checked && "opacity-60",
               )}
             >

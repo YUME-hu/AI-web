@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ExternalLink,
-  Loader2,
   MessageSquarePlus,
   RotateCcw,
   Search,
@@ -19,6 +18,8 @@ interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
+  /** ISO 时间戳，用于 [SYS_LOG // hh:mm:ss] 标签 */
+  ts: string;
   sources?: RagSource[];
 }
 
@@ -30,11 +31,20 @@ const EXAMPLE_QUESTIONS = [
 
 const SESSION_KEY = "chat-session-id";
 
-/** 相似度分色（复用匹配度配色直觉） */
+/** 相似度分色（《星空》辅助色板，不用警示红） */
 function similarityClass(similarity: number): string {
-  if (similarity > 0.6) return "text-primary";
-  if (similarity >= 0.4) return "text-accent";
+  if (similarity > 0.6) return "text-chart-blue";
+  if (similarity >= 0.4) return "text-chart-orange";
   return "text-muted-foreground";
+}
+
+/** ISO → 本地 hh:mm:ss（终端日志戳） */
+function stamp(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "--:--:--";
+  return [d.getHours(), d.getMinutes(), d.getSeconds()]
+    .map((n) => String(n).padStart(2, "0"))
+    .join(":");
 }
 
 export function ChatInterface() {
@@ -95,10 +105,11 @@ export function ChatInterface() {
     setError(null);
 
     const aiId = crypto.randomUUID();
+    const now = new Date().toISOString();
     setMessages((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), role: "user", content: trimmed },
-      { id: aiId, role: "assistant", content: "", sources: [] },
+      { id: crypto.randomUUID(), role: "user", content: trimmed, ts: now },
+      { id: aiId, role: "assistant", content: "", sources: [], ts: now },
     ]);
     setStreaming(true);
 
@@ -169,9 +180,9 @@ export function ChatInterface() {
   }
 
   return (
-    <section className="clip-corner border border-border bg-card">
-      {/* 模式切换 */}
-      <div className="flex items-center border-b border-border">
+    <section className="term-panel border border-foreground">
+      {/* 模式切换：终端命令式 */}
+      <div className="term-rule flex items-center border-b">
         {(
           [
             { key: "chat", label: "AI 问答", icon: Sparkles },
@@ -182,10 +193,10 @@ export function ChatInterface() {
             key={tab.key}
             onClick={() => setMode(tab.key)}
             className={cn(
-              "flex items-center gap-2 border-b-2 px-4 py-2.5 font-mono text-xs transition-colors",
+              "flex items-center gap-2 px-4 py-2.5 font-mono text-[11px] tracking-[0.12em] uppercase transition-none",
               mode === tab.key
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground",
+                ? "bg-[#ECE5D6] text-[#191919]"
+                : "text-[#ECE5D6]/55 hover:text-[#ECE5D6]",
             )}
           >
             <tab.icon className="size-3.5" />
@@ -195,7 +206,7 @@ export function ChatInterface() {
         {mode === "chat" && (
           <button
             onClick={newSession}
-            className="ml-auto mr-3 flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground transition-colors hover:text-primary"
+            className="ml-auto mr-3 flex items-center gap-1.5 border border-[#ECE5D6]/35 px-2 py-1 font-mono text-[10px] tracking-[0.12em] text-[#ECE5D6]/70 uppercase transition-none hover:border-[#ECE5D6] hover:bg-[#ECE5D6] hover:text-[#191919]"
           >
             <RotateCcw className="size-3" />
             新会话
@@ -205,21 +216,26 @@ export function ChatInterface() {
 
       {mode === "chat" ? (
         <>
-          {/* 消息列表 */}
-          <div ref={listRef} className="h-[52vh] space-y-4 overflow-y-auto p-4 md:p-5">
+          {/* 消息流：无气泡，靠 1px 细线分割 */}
+          <div
+            ref={listRef}
+            className="h-[52vh] overflow-y-auto bg-[#101010]"
+          >
             {messages.length === 0 ? (
-              <div className="flex h-full flex-col items-center justify-center text-center">
-                <MessageSquarePlus className="size-8 text-primary/60" />
-                <p className="mt-4 font-bold">你好，我是平台 AI 助手</p>
-                <p className="mt-1 max-w-md text-sm text-muted-foreground">
-                  我的知识来自项目库与博客文章，试试这些问题：
+              <div className="flex h-full flex-col items-center justify-center px-6 text-center">
+                <MessageSquarePlus className="size-8 text-[#ECE5D6]/35" />
+                <p className="mt-4 font-mono text-sm tracking-[0.1em] text-[#ECE5D6] uppercase">
+                  {"// READY FOR INPUT"}
+                </p>
+                <p className="mt-2 max-w-md text-xs leading-relaxed text-[#ECE5D6]/50">
+                  知识库 = 项目库 + 博客文章。可用指令示例：
                 </p>
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
                   {EXAMPLE_QUESTIONS.map((q) => (
                     <button
                       key={q}
                       onClick={() => void send(q)}
-                      className="rounded-sm border border-border px-3 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary"
+                      className="border border-[#ECE5D6]/25 px-2.5 py-1.5 font-mono text-[11px] text-[#ECE5D6]/70 transition-none hover:border-[#ECE5D6] hover:text-[#ECE5D6]"
                     >
                       {q}
                     </button>
@@ -227,60 +243,75 @@ export function ChatInterface() {
                 </div>
               </div>
             ) : (
-              messages.map((m) => (
-                <div
-                  key={m.id}
-                  className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}
-                >
-                  <div
-                    className={cn(
-                      "max-w-[85%] rounded-sm border px-4 py-2.5 md:max-w-[75%]",
-                      m.role === "user"
-                        ? "border-primary/40 bg-primary/15 text-foreground"
-                        : "border-border bg-background",
-                    )}
-                  >
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                      {m.content}
-                      {m.role === "assistant" && streaming && m.content === "" && (
-                        <span className="font-mono text-muted-foreground">思考中…</span>
-                      )}
-                      {m.role === "assistant" &&
-                        streaming &&
-                        m.content !== "" &&
-                        messages[messages.length - 1]?.id === m.id && (
-                          <span className="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse bg-primary align-text-bottom" />
-                        )}
+              messages.map((m, i) => {
+                const isLast = i === messages.length - 1;
+                const isUser = m.role === "user";
+                return (
+                  <div key={m.id} className="term-rule border-b px-4 py-3.5 md:px-5">
+                    {/* 日志标签 */}
+                    <p className="font-mono text-[10px] tracking-[0.16em] uppercase">
+                      <span className="text-[#ECE5D6]/45">
+                        [{isUser ? "INPUT" : "SYS_LOG"} {"//"}{" "}
+                        <span suppressHydrationWarning>{stamp(m.ts)}</span>]
+                      </span>
                     </p>
-                    {/* 来源 chips */}
-                    {m.sources && m.sources.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-1.5 border-t border-border/60 pt-2">
-                        {m.sources.map((s) => (
-                          <Link
-                            key={s.url}
-                            href={s.url}
-                            className="flex items-center gap-1 rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary"
-                          >
-                            <ExternalLink className="size-2.5" />
-                            {s.type === "project" ? "项目" : "文章"} · {s.title}
-                          </Link>
-                        ))}
+
+                    {isUser ? (
+                      <div className="mt-1.5 flex gap-2">
+                        <span className="shrink-0 font-mono text-xs leading-relaxed text-primary">
+                          {">_"}
+                        </span>
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap text-[#ECE5D6]">
+                          {m.content}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="mt-1.5">
+                        {m.content === "" && streaming && isLast ? (
+                          <span className="term-blink font-mono text-[11px] tracking-[0.14em] text-[#ECE5D6]/65">
+                            [ LOADING... ]
+                          </span>
+                        ) : (
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap text-[#ECE5D6]">
+                            {m.content}
+                            {streaming && isLast && m.content !== "" && (
+                              <span className="term-blink ml-1 inline-block h-3.5 w-1.5 translate-y-[2px] bg-primary align-baseline" />
+                            )}
+                          </p>
+                        )}
+
+                        {/* 来源 chips */}
+                        {m.sources && m.sources.length > 0 && (
+                          <div className="term-rule mt-2.5 flex flex-wrap gap-1.5 border-t pt-2">
+                            {m.sources.map((s) => (
+                              <Link
+                                key={s.url}
+                                href={s.url}
+                                className="flex items-center gap-1 border border-[#ECE5D6]/25 px-1.5 py-0.5 font-mono text-[10px] text-[#ECE5D6]/60 transition-none hover:border-[#ECE5D6] hover:text-[#ECE5D6]"
+                              >
+                                <ExternalLink className="size-2.5" />
+                                {s.type === "project" ? "项目" : "文章"} · {s.title}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
           {error && (
-            <p className="mx-4 mb-2 border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive md:mx-5">
+            <p className="term-rule mx-4 mt-2 border border-primary/50 bg-primary/10 px-3 py-2 font-mono text-xs text-[#ECE5D6] md:mx-5">
+              {">_ "}
               {error}
             </p>
           )}
 
           {/* 输入区 */}
-          <div className="border-t border-border p-3 md:px-5">
+          <div className="term-rule border-t p-3 md:px-5">
             <div className="flex items-end gap-2">
               <textarea
                 value={input}
@@ -296,18 +327,14 @@ export function ChatInterface() {
                 rows={2}
                 maxLength={500}
                 disabled={streaming}
-                className="flex-1 resize-none rounded-sm border border-input bg-input/30 px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring disabled:opacity-50"
+                className="np-input np-textarea np-input-term flex-1 resize-none text-sm disabled:opacity-60"
               />
               <Button
                 onClick={() => void send(input)}
                 disabled={streaming || !input.trim()}
-                className="rounded-sm"
+                className="shrink-0"
               >
-                {streaming ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <SendHorizonal className="size-4" />
-                )}
+                <SendHorizonal className="size-4" />
                 {streaming ? "回答中" : "发送"}
               </Button>
             </div>
@@ -321,58 +348,54 @@ export function ChatInterface() {
               e.preventDefault();
               void runSearch();
             }}
-            className="flex items-center gap-2 border-b border-border p-3 md:px-5"
+            className="term-rule flex items-center gap-2 border-b p-3 md:px-5"
           >
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="用自然语言描述想找的内容，如：数据可视化相关的项目"
-              className="h-9 flex-1 rounded-sm border border-input bg-input/30 px-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring"
+              className="np-input np-input-term h-9 flex-1 text-sm"
             />
-            <Button type="submit" disabled={searching || !searchQuery.trim()} className="rounded-sm">
-              {searching ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Search className="size-4" />
-              )}
+            <Button type="submit" disabled={searching || !searchQuery.trim()} className="shrink-0">
+              <Search className="size-4" />
               {searching ? "搜索中" : "搜索"}
             </Button>
           </form>
 
           {/* 搜索结果 */}
-          <div className="min-h-[40vh] p-4 md:p-5">
+          <div className="min-h-[40vh] bg-[#101010] p-4 md:p-5">
             {searchError && (
-              <p className="border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              <p className="border border-primary/50 bg-primary/10 px-3 py-2 font-mono text-xs text-[#ECE5D6]">
                 {searchError}
               </p>
             )}
             {results === null && !searchError && (
-              <p className="py-16 text-center font-mono text-xs text-muted-foreground">
+              <p className="py-16 text-center font-mono text-xs tracking-[0.14em] text-[#ECE5D6]/40 uppercase">
                 {"// 输入关键词开始语义搜索"}
               </p>
             )}
             {results !== null && results.length === 0 && (
               <div className="py-16 text-center">
-                <p className="font-mono text-xs tracking-widest text-muted-foreground">
+                <p className="font-mono text-xs tracking-[0.14em] text-[#ECE5D6]/50 uppercase">
                   {"// NO RESULT"}
                 </p>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-xs text-[#ECE5D6]/40">
                   没有找到相似内容，换个描述试试
                 </p>
               </div>
             )}
-            <div className="space-y-3">
+            <div className="space-y-2">
               {results?.map((r) => (
                 <Link
                   key={`${r.sourceType}:${r.sourceId}`}
                   href={r.url}
-                  className="clip-corner group block border border-border bg-background p-4 transition-colors hover:border-primary/60"
+                  className="group block border border-[#ECE5D6]/20 p-3.5 transition-none hover:border-[#ECE5D6]"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+                    <span className="font-mono text-[10px] tracking-[0.16em] text-[#ECE5D6]/45 uppercase">
                       {r.sourceType === "project" ? "项目" : "文章"}
                     </span>
-                    <h3 className="font-semibold transition-colors group-hover:text-primary">
+                    <h3 className="text-sm font-semibold text-[#ECE5D6]">
                       {r.title}
                     </h3>
                     <span
@@ -384,7 +407,7 @@ export function ChatInterface() {
                       {Math.round(r.similarity * 100)}%
                     </span>
                   </div>
-                  <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">
+                  <p className="mt-1.5 line-clamp-2 text-xs text-[#ECE5D6]/50">
                     {r.snippet}…
                   </p>
                 </Link>

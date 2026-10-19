@@ -2,15 +2,16 @@ import { cn } from "@/lib/utils";
 
 /**
  * GitHub 风格全年贡献热力图（纯展示，server/client 均可，Phase 9 首页复用）
- * 53 列（周）x 7 行（天），按当天事件数分 5 档颜色
+ * 53 列（周）x 7 行（天），按当天事件数分 5 档
+ * 色阶：《星空》辅助色板 —— 低活跃度沙色 #DBA972，高活跃度信标蓝 #21467A，不用红色
  */
 
 const LEVEL_CLASS = [
-  "bg-secondary",
-  "bg-primary/25",
-  "bg-primary/45",
-  "bg-primary/70",
-  "bg-primary",
+  "bg-muted", // 空白日：极淡底
+  "bg-chart-sand/35",
+  "bg-chart-sand",
+  "bg-chart-blue/50",
+  "bg-chart-blue",
 ] as const;
 
 function levelOf(count: number): number {
@@ -70,7 +71,7 @@ export function Heatmap({ events }: { events: { date: string }[] }) {
     <div className="overflow-x-auto pb-1">
       <div className="inline-block">
         {/* 月份标签：月份变化处的列上方 */}
-        <div className="flex gap-[3px]">
+        <div className="flex gap-[2px]">
           {weeks.map((week, i) => (
             <span
               key={i}
@@ -82,16 +83,16 @@ export function Heatmap({ events }: { events: { date: string }[] }) {
             </span>
           ))}
         </div>
-        {/* 网格 */}
-        <div className="mt-1 flex gap-[3px]">
+        {/* 网格：直角小方块，2px 间距 */}
+        <div className="mt-1 flex gap-[2px]">
           {weeks.map((week, i) => (
-            <div key={i} className="flex shrink-0 flex-col gap-[3px]">
+            <div key={i} className="flex shrink-0 flex-col gap-[2px]">
               {week.map((day) => (
                 <div
                   key={day.key}
                   title={`${day.key} · ${day.count} 个事件`}
                   className={cn(
-                    "size-[10px] rounded-[2px]",
+                    "size-[10px] rounded-none",
                     day.future ? "bg-transparent" : LEVEL_CLASS[levelOf(day.count)],
                   )}
                 />
@@ -103,7 +104,7 @@ export function Heatmap({ events }: { events: { date: string }[] }) {
         <div className="mt-2 flex items-center justify-end gap-1 font-mono text-[10px] text-muted-foreground">
           少
           {LEVEL_CLASS.map((cls, i) => (
-            <span key={i} className={cn("size-[10px] rounded-[2px]", cls)} />
+            <span key={i} className={cn("size-[10px] rounded-none", cls)} />
           ))}
           多
         </div>

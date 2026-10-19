@@ -2,14 +2,28 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/*
+ * NASA-Punk / 工业控制台主题（唯一主题）
+ * ------------------------------------------------------------------
+ * 旧版"纯暗色明日方舟风"（#0D1117 + #00D4FF 青色发光）已整体废弃。
+ * 本文件是设计令牌的唯一权威来源：Tailwind 4 为 CSS-first 配置，
+ * 项目内不存在 tailwind.config.ts，也不应新建（不经 @config 引入即为死配置）。
+ *
+ * 约束见 /AGENTS.md：
+ *   - 无 backdrop-filter / 无发光 / 无大面积阴影 / 圆角 = 0
+ *   - 边框统一 1px solid #191919
+ *   - #D63A2C 是全站唯一鲜艳色，仅用于主按钮与关键状态
+ */
+
+/* dark: 变体保留定义，但 <html> 不再挂 .dark，因此所有 dark: 工具类惰性失效。 */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-geist-sans);
+  --font-sans: var(--np-font-body);
+  --font-mono: var(--np-font-mono);
+  --font-heading: var(--np-font-heading);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -23,6 +37,13 @@
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+  /* 《星空》辅助色板（星野/星际工业） */
+  --color-chart-blue: var(--chart-blue);
+  --color-chart-orange: var(--chart-orange);
+  --color-chart-sand: var(--chart-sand);
+  /* NASA 四色条里的橄榄与石板，也作为模块分类色使用 */
+  --color-chart-olive: var(--np-olive);
+  --color-chart-slate: var(--np-slate);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -41,6 +62,7 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* 圆角一律 0：所有 rounded-* 工具类派生自 --radius */
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -50,175 +72,512 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/*
- * 明日方舟平面设计风格 · 纯暗色（PRD §1.3）
- * 锐角切边、极小圆角、青蓝主强调、琥珀橙次强调
- */
 :root {
-  --background: #0d1117;
-  --foreground: #e6edf3;
-  --card: #1c2333;
-  --card-foreground: #e6edf3;
-  --popover: #21262d;
-  --popover-foreground: #e6edf3;
-  --primary: #00d4ff;
-  --primary-foreground: #0d1117;
-  --secondary: #21262d;
-  --secondary-foreground: #e6edf3;
-  --muted: #21262d;
-  --muted-foreground: #8b949e;
-  --accent: #ff8c00;
-  --accent-foreground: #0d1117;
-  --destructive: #ff4b4b;
-  --success: #00b578;
-  --warning: #f0a020;
-  --border: #30363d;
-  --input: #30363d;
-  --ring: #00d4ff;
-  --chart-1: #00d4ff;
-  --chart-2: #ff8c00;
-  --chart-3: #00b578;
-  --chart-4: #f0a020;
-  --chart-5: #8b949e;
-  --radius: 0.25rem;
-  --sidebar: #0d1117;
-  --sidebar-foreground: #e6edf3;
-  --sidebar-primary: #00d4ff;
-  --sidebar-primary-foreground: #0d1117;
-  --sidebar-accent: #1c2333;
-  --sidebar-accent-foreground: #e6edf3;
-  --sidebar-border: #30363d;
-  --sidebar-ring: #00d4ff;
+  /* 形状：强制 0 */
+  --radius: 0px;
+
+  /* 字体栈
+   * 拉丁字形优先走 Geist，中文字形因 Geist 无 CJK 而逐字回落到思源黑体 / Noto。
+   * 标题与数据走 Space Mono（等宽），符合"全大写 + 加宽字距"的仪表盘气质。 */
+  --np-font-body: var(--font-geist-sans), "Source Han Sans SC", "Noto Sans SC",
+    "Source Han Sans CN", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --np-font-mono: var(--font-space-mono), ui-monospace, "Cascadia Mono",
+    "SF Mono", Consolas, "Courier New", monospace;
+  --np-font-heading: var(--font-space-mono), ui-monospace, "Cascadia Mono",
+    "SF Mono", Consolas, monospace;
+
+  /* NASA 复古四色（.nasa-bar 与图表用，均为低饱和，不与警示红争抢注意力） */
+  --np-slate: #4c5a68;
+  --np-olive: #7a7f4e;
+  --np-ochre: #d2a85e;
+  --np-brick: #a8432f;
+
+  /* 核心令牌 */
+  --background: #ece5d6; /* 米白/浅灰：工业外壳、档案纸 */
+  --foreground: #191919; /* 炭黑：主文字与边框 */
+  --card: #ffffff; /* 纯白：面板底色 */
+  --card-foreground: #191919;
+  --popover: #ffffff;
+  --popover-foreground: #191919;
+  --primary: #d63a2c; /* 警示红：全站唯一鲜艳色 */
+  --primary-foreground: #ffffff;
+  --secondary: #e2dcd0; /* 稍暗的米色：次级背景 */
+  --secondary-foreground: #191919;
+  --muted: #e2dcd0;
+  --muted-foreground: #5a554c; /* 约 6.5:1，浅底上仍达 AA */
+  --accent: #191919; /* 不另设鲜艳色：强调靠"反白"表达 */
+  --accent-foreground: #ece5d6;
+  --destructive: #d63a2c;
+  --success: #7a7f4e;
+  --warning: #d2a85e;
+  --border: #191919; /* 全站 1px 机械接缝 */
+  --input: #191919;
+  --ring: #191919;
+  --chart-1: #21467a;
+  --chart-2: #d45814;
+  --chart-3: #dba972;
+  --chart-4: #7a7f4e;
+  --chart-5: #4c5a68;
+
+  /* 《星空》辅助色板：只用于数据可视化、状态、次级高亮，不参与"唯一鲜艳色"竞争 */
+  --chart-blue: #21467a; /* 剧场蓝 / 信标蓝 */
+  --chart-orange: #d45814; /* 波斯橙：第二级高亮 */
+  --chart-sand: #dba972; /* 金秋岁月：低活跃度 / 底纹 */
+
+  /* 侧边栏：同一工业外壳上的次级面板 */
+  --sidebar: #e2dcd0;
+  --sidebar-foreground: #191919;
+  --sidebar-primary: #d63a2c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #191919; /* 选中项反白 */
+  --sidebar-accent-foreground: #ece5d6;
+  --sidebar-border: #191919;
+  --sidebar-ring: #191919;
+
+  color-scheme: light;
 }
 
+/*
+ * 已废弃暗色调色板（#0D1117 / #1C2333 / #00D4FF / #FF8C00）不得再出现在任何文件里。
+ * 若历史代码或第三方片段仍挂上 .dark，令牌保持一致，页面不会被拉回暗色。
+ */
 .dark {
-  --background: #0d1117;
-  --foreground: #e6edf3;
-  --card: #1c2333;
-  --card-foreground: #e6edf3;
-  --popover: #21262d;
-  --popover-foreground: #e6edf3;
-  --primary: #00d4ff;
-  --primary-foreground: #0d1117;
-  --secondary: #21262d;
-  --secondary-foreground: #e6edf3;
-  --muted: #21262d;
-  --muted-foreground: #8b949e;
-  --accent: #ff8c00;
-  --accent-foreground: #0d1117;
-  --destructive: #ff4b4b;
-  --success: #00b578;
-  --warning: #f0a020;
-  --border: #30363d;
-  --input: #30363d;
-  --ring: #00d4ff;
-  --chart-1: #00d4ff;
-  --chart-2: #ff8c00;
-  --chart-3: #00b578;
-  --chart-4: #f0a020;
-  --chart-5: #8b949e;
-  --sidebar: #0d1117;
-  --sidebar-foreground: #e6edf3;
-  --sidebar-primary: #00d4ff;
-  --sidebar-primary-foreground: #0d1117;
-  --sidebar-accent: #1c2333;
-  --sidebar-accent-foreground: #e6edf3;
-  --sidebar-border: #30363d;
-  --sidebar-ring: #00d4ff;
+  --background: #ece5d6;
+  --foreground: #191919;
+  --card: #ffffff;
+  --card-foreground: #191919;
+  --popover: #ffffff;
+  --popover-foreground: #191919;
+  --primary: #d63a2c;
+  --primary-foreground: #ffffff;
+  --secondary: #e2dcd0;
+  --secondary-foreground: #191919;
+  --muted: #e2dcd0;
+  --muted-foreground: #5a554c;
+  --accent: #191919;
+  --accent-foreground: #ece5d6;
+  --destructive: #d63a2c;
+  --success: #7a7f4e;
+  --warning: #d2a85e;
+  --border: #191919;
+  --input: #191919;
+  --ring: #191919;
+  --sidebar: #e2dcd0;
+  --sidebar-foreground: #191919;
+  --sidebar-primary: #d63a2c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #191919;
+  --sidebar-accent-foreground: #ece5d6;
+  --sidebar-border: #191919;
+  --sidebar-ring: #191919;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
   html {
     @apply font-sans;
   }
+  body {
+    @apply bg-background text-foreground;
+  }
+  ::selection {
+    background: var(--primary);
+    color: #ffffff;
+  }
+  /* 浅色底上的滚动条也换成工业件 */
+  * {
+    scrollbar-color: #191919 transparent;
+  }
 }
 
-/* ========== 明日方舟风格装饰工具类 ========== */
+/* ==================================================================
+ * 动效：只保留"机械闪断"，无缓动、无辉光
+ * ================================================================== */
 
-/* 数据网格背景 */
-@utility bg-grid {
-  background-image:
-    linear-gradient(to right, #30363d33 1px, transparent 1px),
-    linear-gradient(to bottom, #30363d33 1px, transparent 1px);
-  background-size: 40px 40px;
+/* 终端光标与 LOADING 文本的硬闪（steps 保证是方形跳变，不是呼吸） */
+@keyframes np-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
 }
 
-/* 细网格背景 */
-@utility bg-grid-sm {
-  background-image:
-    linear-gradient(to right, #30363d26 1px, transparent 1px),
-    linear-gradient(to bottom, #30363d26 1px, transparent 1px);
-  background-size: 20px 20px;
+@keyframes np-blink-soft {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.28;
+  }
 }
 
-/* 锐角切边（右上角） */
-@utility clip-corner {
-  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
-}
+/* ==================================================================
+ * 工具类
+ * ================================================================== */
 
-/* 锐角切边（左上 + 右下） */
-@utility clip-corner-both {
-  clip-path: polygon(
-    12px 0,
-    100% 0,
-    100% calc(100% - 12px),
-    calc(100% - 12px) 100%,
-    0 100%,
-    0 12px
+/*
+ * 说明：这些装饰类刻意写成"普通 CSS 类"而不是 Tailwind 的 @utility。
+ * 实测 Tailwind 4.1 的 @utility 在包含 `&::before` 这类伪元素嵌套时会整块不产出
+ * （rivet 明明被 card.tsx 使用，编译产物里也查不到）。普通类一定是稳定产出的，
+ * 且这些类不需要 hover:/md: 之类的前缀变体，故直接用普通类。
+ */
+
+/* NASA 经典四色条：硬边色块拼接（规格强制元素，AGENTS.md §2.5 唯一渐变例外） */
+.nasa-bar {
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(
+    to right,
+    #4c5a68 25%,
+    #7a7f4e 25% 50%,
+    #d2a85e 50% 75%,
+    #a8432f 75%
   );
 }
 
-/* 扫描线效果 */
-@utility scanlines {
-  position: relative;
-  overflow: hidden;
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 2px,
-      #00d4ff08 3px,
-      transparent 4px
-    );
-  }
+/* 警告斜纹：黑白 45° 硬边条纹，用于 Badge / 危险区块底纹 */
+.hazard-stripes {
+  background-image: repeating-linear-gradient(
+    45deg,
+    #191919 0 1px,
+    transparent 1px 7px
+  );
 }
 
-/* 战术感分割线：左端带实心块 */
-@utility divider-tactical {
+/* 更淡的斜纹，用于统计卡片的底纹 */
+.hazard-stripes-soft {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgb(25 25 25 / 0.06) 0 1px,
+    transparent 1px 6px
+  );
+}
+
+/* 铆钉：左上 + 右下各一枚 4px 纯黑方块（模拟机械压接点）
+ * 顶部有 6px 斜纹条，所以左上铆钉下移到 12px，避免压在斜纹上 */
+.rivet {
+  position: relative;
+}
+.rivet::before,
+.rivet::after {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #191919;
+  pointer-events: none;
+}
+.rivet::before {
+  top: 12px;
+  left: 5px;
+}
+.rivet::after {
+  right: 5px;
+  bottom: 5px;
+}
+
+/* 卡片顶部 6px 黑白斜纹条：画在卡片背景上，不额外占一个伪元素 */
+.card-hazard {
+  background-image: repeating-linear-gradient(
+    45deg,
+    #191919 0 2px,
+    transparent 2px 6px
+  );
+  background-repeat: no-repeat;
+  background-position: top left;
+  background-size: 100% 6px;
+}
+
+/* 工业输入框：纯白底 + 1px 炭黑边 + 左侧红色实心方块光标（静态，不闪）
+ * 用背景色块实现而不是伪元素：input / textarea 不支持 ::before */
+.np-input {
+  background-color: #ffffff;
+  background-image: linear-gradient(#d63a2c, #d63a2c);
+  background-repeat: no-repeat;
+  background-position: 10px 50%;
+  background-size: 6px 14px;
+  border: 1px solid #191919;
+  border-radius: 0;
+  color: #191919;
+  padding-left: 26px;
+}
+.np-input::placeholder {
+  color: #5a554c;
+  opacity: 1;
+}
+/* 聚焦时补一圈 1px outline，视觉上等于 2px 黑边，且不产生 1px 布局抖动 */
+.np-input:focus,
+.np-input:focus-visible {
+  outline: 1px solid #191919;
+  outline-offset: -1px;
+  border-color: #191919;
+}
+
+/* 多行输入：方块光标贴首行，而不是垂直居中 */
+.np-textarea {
+  background-position: 10px 11px;
+  line-height: 1.6;
+}
+
+/* ---------------------------------------------------------------
+ * 硬件通讯终端（/chat、/interview/mock）
+ * 深炭黑面板 + 米白字 + 红色方块光标，模拟老式 CRT
+ * --------------------------------------------------------------- */
+
+/* 终端内的输入框：深底米白字，仍然保留红色方块光标 █ */
+.np-input-term {
+  background-color: #101010;
+  background-image: linear-gradient(#d63a2c, #d63a2c);
+  background-repeat: no-repeat;
+  background-position: 10px 50%;
+  background-size: 6px 14px;
+  border: 1px solid rgb(236 229 214 / 0.35);
+  border-radius: 0;
+  color: #ece5d6;
+  caret-color: #ece5d6;
+  padding-left: 26px;
+}
+.np-input-term::placeholder {
+  color: rgb(236 229 214 / 0.4);
+  opacity: 1;
+}
+.np-input-term:focus,
+.np-input-term:focus-visible {
+  outline: 1px solid #ece5d6;
+  outline-offset: -1px;
+  border-color: #ece5d6;
+}
+.np-input-term.np-textarea {
+  background-position: 10px 11px;
+}
+
+/* 终端内的分割线：1px 半透明白 */
+.term-rule {
+  border-color: rgb(236 229 214 / 0.2);
+}
+
+/* 终端闪烁文本（[ LOADING... ]、流式光标） */
+.term-blink {
+  animation: np-blink-soft 1s steps(1, end) infinite;
+}
+
+/* 硬件通讯终端面板：深炭黑 + 米白字 */
+.term-panel {
+  background: #191919;
+  color: #ece5d6;
+  border: 1px solid #191919;
+}
+
+/* 红色实心光标 >_（闪烁），放在输入框左侧或行首 */
+.term-cursor::before {
+  content: ">_";
+  color: var(--primary);
+  font-family: var(--np-font-mono);
+  font-weight: 700;
+  animation: np-blink 1.05s steps(1, end) infinite;
+}
+
+/* 加载态：文本闪烁，替代转圈动画 */
+.term-loading::after {
+  content: "[ LOADING... ]";
+  font-family: var(--np-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  animation: np-blink-soft 1.05s steps(1, end) infinite;
+}
+
+/* 数据网格背景（几何纹理，非装饰渐变） */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(25 25 25 / 0.09) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(25 25 25 / 0.09) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.bg-grid-sm {
+  background-image:
+    linear-gradient(to right, rgb(25 25 25 / 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(25 25 25 / 0.055) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* 蓝图网格：全站底纹，极淡（0.03），细网格 24px + 粗网格 120px 两级 */
+.blueprint-grid {
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      rgb(25 25 25 / 0.03) 0 1px,
+      transparent 1px 24px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgb(25 25 25 / 0.03) 0 1px,
+      transparent 1px 24px
+    ),
+    repeating-linear-gradient(
+      to right,
+      rgb(25 25 25 / 0.05) 0 1px,
+      transparent 1px 120px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgb(25 25 25 / 0.05) 0 1px,
+      transparent 1px 120px
+    );
+}
+
+/* 旧类名保留为"方角无操作"：40+ 处调用点无需改动，斜切角统一收回直角 */
+.clip-corner {
+  border-radius: 0;
+}
+
+/* 战术分割线：炭黑细线 + 左端实心方块（去掉旧的青色渐变） */
+.divider-tactical {
   position: relative;
   height: 1px;
-  background: linear-gradient(to right, #00d4ff, #30363d 60%, transparent);
-  &::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: -2px;
-    width: 5px;
-    height: 5px;
-    background: #00d4ff;
-  }
+  background: rgb(25 25 25 / 0.35);
+}
+.divider-tactical::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  background: #191919;
 }
 
-/* 青色发光文字 */
-@utility text-glow-primary {
-  text-shadow: 0 0 12px #00d4ff66;
+/* 旧类名保留：辉光已移除，只作强调色（避免改调用点） */
+.text-glow-primary {
+  color: var(--primary);
+  text-shadow: none;
 }
 
-/* ========== Tiptap 编辑器排版（暗色，自行定义不用 typography 插件） ========== */
+/* 等宽数字：统计值、时间戳、编号，避免跳动 */
+.tnum {
+  font-family: var(--np-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 全大写小标签 */
+.label-caps {
+  font-family: var(--np-font-mono);
+  font-size: 0.625rem;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------
+ * 头像（Mission Avatar）
+ * 六边形裁切呼应侧栏的 MissionBadge；1px 炭黑描边靠"外层黑六边形 +
+ * 内层内缩 1px 再裁一次"实现（clip-path 会把真 border 裁掉）。
+ * --------------------------------------------------------------- */
+
+.np-avatar {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.np-avatar-hex,
+.np-avatar-hex-inner {
+  position: absolute;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+
+/* 描边层 */
+.np-avatar-hex {
+  inset: 0;
+  background: #191919;
+}
+
+/* 内容层：内缩 1px 露出描边，再留 1px 纸色内衬，
+ * 保证照片暗部也不会和黑色边框糊在一起（边框始终可读） */
+.np-avatar-hex-inner {
+  inset: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 1px;
+  background: #ece5d6;
+}
+
+/* 旧档案屏幕质感：默认去色高对比，hover 才恢复彩色（无过渡，硬切换） */
+.np-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.2);
+}
+.np-avatar:hover .np-avatar-img {
+  filter: none;
+}
+
+/* 无头像时的首字母 */
+.np-avatar-initial {
+  font-family: var(--np-font-mono);
+  font-weight: 700;
+  line-height: 1;
+  color: #191919;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+/* 连姓名都没有时的十字准星占位 */
+.np-avatar-cross {
+  position: relative;
+  width: 46%;
+  height: 46%;
+}
+.np-avatar-cross::before,
+.np-avatar-cross::after {
+  content: "";
+  position: absolute;
+  background: #191919;
+}
+.np-avatar-cross::before {
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+}
+.np-avatar-cross::after {
+  top: 50%;
+  left: 0;
+  height: 1px;
+  width: 100%;
+}
+
+/* 铆钉：右下角一枚 4px 纯黑方块；加一圈纸色描边，保证压在深色照片上也看得见 */
+.np-avatar-rivet {
+  position: absolute;
+  right: 26%;
+  bottom: 16%;
+  width: 4px;
+  height: 4px;
+  background: #191919;
+  outline: 1px solid #ece5d6;
+  pointer-events: none;
+}
+
+/* ==================================================================
+ * Tiptap / 博客正文排版（浅色档案纸，代码块按终端处理）
+ * ================================================================== */
 .blog-prose {
   color: var(--foreground);
   font-size: 0.9rem;
-  line-height: 1.75;
+  line-height: 1.8;
 }
 .blog-prose p {
   margin: 0.6em 0;
@@ -227,19 +586,21 @@
 .blog-prose h2,
 .blog-prose h3 {
   margin: 1em 0 0.4em;
+  font-family: var(--np-font-heading);
   font-weight: 700;
+  letter-spacing: 0.02em;
   color: var(--foreground);
 }
 .blog-prose h1 {
-  font-size: 1.35rem;
+  font-size: 1.3rem;
 }
 .blog-prose h2 {
-  font-size: 1.2rem;
-  border-left: 3px solid var(--primary);
+  font-size: 1.15rem;
+  border-left: 3px solid var(--foreground);
   padding-left: 0.5rem;
 }
 .blog-prose h3 {
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 .blog-prose ul,
 .blog-prose ol {
@@ -256,31 +617,32 @@
   margin: 0.25em 0;
 }
 .blog-prose a {
-  color: var(--primary);
+  color: var(--foreground);
   text-decoration: underline;
+  text-decoration-color: var(--primary);
   text-underline-offset: 3px;
 }
 .blog-prose blockquote {
   margin: 0.8em 0;
-  border-left: 2px solid var(--primary);
+  border-left: 2px solid var(--foreground);
   background: var(--muted);
   padding: 0.5rem 1rem;
   color: var(--muted-foreground);
 }
 .blog-prose code {
-  font-family: var(--font-mono);
+  font-family: var(--np-font-mono);
   font-size: 0.82em;
   background: var(--muted);
-  border: 1px solid var(--border);
-  border-radius: 2px;
+  border: 1px solid var(--foreground);
+  border-radius: 0;
   padding: 0.1em 0.35em;
-  color: var(--accent);
+  color: var(--foreground);
 }
 .blog-prose pre {
   margin: 0.8em 0;
-  background: #0d1117;
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  background: #191919;
+  border: 1px solid #191919;
+  border-radius: 0;
   padding: 0.75rem 1rem;
   overflow-x: auto;
 }
@@ -288,18 +650,34 @@
   background: transparent;
   border: none;
   padding: 0;
-  color: var(--foreground);
+  color: #ece5d6;
   font-size: 0.8rem;
 }
 .blog-prose hr {
   margin: 1.2em 0;
-  border-color: var(--border);
+  border-color: rgb(25 25 25 / 0.35);
 }
 .blog-prose strong {
   color: var(--foreground);
   font-weight: 700;
 }
-/* 编辑器占位光标 */
+.blog-prose table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.blog-prose th,
+.blog-prose td {
+  border: 1px solid var(--foreground);
+  padding: 0.35rem 0.6rem;
+  text-align: left;
+}
+.blog-prose th {
+  background: var(--muted);
+  font-family: var(--np-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
 .blog-prose:focus {
   outline: none;
 }
@@ -307,46 +685,52 @@
   display: inline;
 }
 
-/* ========== react-big-calendar 暗色覆盖（贴合明日方舟主题） ========== */
+/* ==================================================================
+ * react-big-calendar 覆盖（浅色工业风）
+ * ================================================================== */
 .rbc-calendar {
   background: transparent;
   color: var(--foreground);
-  font-family: inherit;
+  font-family: var(--np-font-body);
 }
 
-/* 工具栏 */
 .rbc-calendar .rbc-toolbar {
   margin-bottom: 0.75rem;
-  font-family: var(--font-mono);
+  font-family: var(--np-font-mono);
 }
 .rbc-calendar .rbc-toolbar .rbc-toolbar-label {
   color: var(--foreground);
   font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.05em;
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 .rbc-calendar .rbc-toolbar button {
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  color: var(--muted-foreground);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
+  background: var(--card);
+  border: 1px solid var(--foreground);
+  border-radius: 0;
+  color: var(--foreground);
+  font-family: var(--np-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   padding: 0.3rem 0.7rem;
-  transition: all 0.15s;
+  transition:
+    background-color 0.08s linear,
+    color 0.08s linear;
 }
 .rbc-calendar .rbc-toolbar button:hover {
-  background: var(--muted);
-  color: var(--foreground);
-  border-color: var(--primary);
+  background: var(--foreground);
+  color: var(--background);
+  border-color: var(--foreground);
 }
 .rbc-calendar .rbc-toolbar button:focus,
 .rbc-calendar .rbc-toolbar button:active,
 .rbc-calendar .rbc-toolbar button.rbc-active,
 .rbc-calendar .rbc-toolbar button.rbc-active:hover {
-  background: rgb(0 212 255 / 0.1);
-  border-color: rgb(0 212 255 / 0.4);
-  color: var(--primary);
+  background: var(--foreground);
+  border-color: var(--foreground);
+  color: var(--background);
   box-shadow: none;
 }
 
@@ -354,42 +738,42 @@
 .rbc-calendar .rbc-month-view,
 .rbc-calendar .rbc-time-view,
 .rbc-calendar .rbc-agenda-view table.rbc-agenda-table {
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: transparent;
+  border: 1px solid var(--foreground);
+  border-radius: 0;
+  background: var(--card);
 }
 .rbc-calendar .rbc-header {
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--foreground);
   padding: 0.4rem 0;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  color: var(--muted-foreground);
+  font-family: var(--np-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  color: var(--foreground);
   text-transform: uppercase;
 }
 .rbc-calendar .rbc-header + .rbc-header {
-  border-left: 1px solid var(--border);
+  border-left: 1px solid var(--foreground);
 }
 .rbc-calendar .rbc-month-row + .rbc-month-row,
 .rbc-calendar .rbc-day-bg + .rbc-day-bg {
-  border-color: var(--border);
+  border-color: rgb(25 25 25 / 0.35);
 }
 .rbc-calendar .rbc-day-bg + .rbc-day-bg {
-  border-left: 1px solid var(--border);
+  border-left: 1px solid rgb(25 25 25 / 0.35);
 }
 .rbc-calendar .rbc-month-row + .rbc-month-row {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--foreground);
 }
 .rbc-calendar .rbc-off-range-bg {
-  background: rgb(13 17 23 / 0.6);
+  background: var(--muted);
 }
 .rbc-calendar .rbc-off-range {
-  color: rgb(139 148 158 / 0.4);
+  color: rgb(25 25 25 / 0.35);
 }
 .rbc-calendar .rbc-date-cell {
   padding: 0.25rem 0.4rem;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-family: var(--np-font-mono);
+  font-size: 0.68rem;
   color: var(--muted-foreground);
   text-align: right;
 }
@@ -398,7 +782,7 @@
   font-weight: 700;
 }
 .rbc-calendar .rbc-today {
-  background: rgb(0 212 255 / 0.08);
+  background: rgb(214 58 44 / 0.06);
 }
 .rbc-calendar .rbc-row-segment {
   padding: 0 2px 1px;
@@ -406,98 +790,108 @@
 .rbc-calendar .rbc-show-more {
   background: transparent;
   color: var(--primary);
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-family: var(--np-font-mono);
+  font-size: 0.62rem;
   padding: 0 0.3rem;
 }
 
-/* 事件条：按类型分色（对应 eventPropGetter 的 className） */
+/* 事件条：左侧实心导轨区分类型（低饱和，唯一鲜艳色仍归警示红） */
 .rbc-calendar .rbc-event {
   background: transparent;
   border: none;
-  border-radius: 2px;
+  border-radius: 0;
   padding: 1px 4px;
   font-size: 0.7rem;
   line-height: 1.4;
 }
 .rbc-calendar .rbc-event:focus,
 .rbc-calendar .rbc-event.rbc-selected {
-  outline: 1px solid var(--ring);
+  outline: 1px solid var(--foreground);
   background: inherit;
 }
 .rbc-calendar .rbc-event--project_start {
-  background: rgb(0 212 255 / 0.15);
-  border-left: 2px solid #00d4ff;
+  background: rgb(76 90 104 / 0.12);
+  border-left: 2px solid #4c5a68;
   color: var(--foreground);
 }
 .rbc-calendar .rbc-event--project_end {
-  background: rgb(0 181 120 / 0.15);
-  border-left: 2px solid #00b578;
+  background: rgb(122 127 78 / 0.14);
+  border-left: 2px solid #7a7f4e;
   color: var(--foreground);
 }
 .rbc-calendar .rbc-event--blog_post {
-  background: rgb(255 140 0 / 0.15);
-  border-left: 2px solid #ff8c00;
+  background: rgb(210 168 94 / 0.16);
+  border-left: 2px solid #d2a85e;
   color: var(--foreground);
 }
 .rbc-calendar .rbc-event--manual {
-  background: rgb(139 148 158 / 0.15);
-  border-left: 2px solid #8b949e;
+  background: rgb(25 25 25 / 0.06);
+  border-left: 2px solid #5a554c;
   color: var(--foreground);
 }
 .rbc-calendar .rbc-event--commit,
 .rbc-calendar .rbc-event--release {
   background: var(--muted);
-  border-left: 2px solid var(--border);
+  border-left: 2px solid var(--foreground);
   color: var(--muted-foreground);
 }
-/* 弹层（show more） */
+/* 弹层：用 1px 边框表达层次，去掉阴影 */
 .rbc-calendar .rbc-overlay {
-  background: var(--popover);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
+  background: var(--card);
+  border: 1px solid var(--foreground);
+  border-radius: 0;
+  box-shadow: none;
 }
 .rbc-calendar .rbc-overlay-header {
-  border-bottom: 1px solid var(--border);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
+  border-bottom: 1px solid var(--foreground);
+  font-family: var(--np-font-mono);
+  font-size: 0.72rem;
   padding: 0.4rem 0.6rem;
 }
 
 /* 周/日视图 */
 .rbc-calendar .rbc-time-header.rbc-overflowing,
 .rbc-calendar .rbc-time-header-content {
-  border-color: var(--border);
+  border-color: var(--foreground);
 }
 .rbc-calendar .rbc-time-content {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--foreground);
 }
 .rbc-calendar .rbc-time-content > * + * > * {
-  border-left: 1px solid var(--border);
+  border-left: 1px solid rgb(25 25 25 / 0.35);
 }
 .rbc-calendar .rbc-timeslot-group {
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgb(25 25 25 / 0.2);
 }
 .rbc-calendar .rbc-time-gutter .rbc-label,
 .rbc-calendar .rbc-time-slot {
   color: var(--muted-foreground);
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-family: var(--np-font-mono);
+  font-size: 0.62rem;
 }
 .rbc-calendar .rbc-day-slot .rbc-time-slot {
-  border-top: 1px solid rgb(48 54 61 / 0.4);
+  border-top: 1px solid rgb(25 25 25 / 0.12);
 }
 .rbc-calendar .rbc-current-time-indicator {
   background: var(--primary);
   height: 1px;
 }
 .rbc-calendar .rbc-allday-cell {
-  /* 全天事件区背景 */
   background: transparent;
 }
 .rbc-calendar .rbc-agenda-date-cell,
 .rbc-calendar .rbc-agenda-time-cell {
   color: var(--muted-foreground);
-  font-family: var(--font-mono);
+  font-family: var(--np-font-mono);
+}
+
+/* 尊重系统"减少动态效果"：闪烁类动效直接停 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

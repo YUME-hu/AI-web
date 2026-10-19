@@ -55,7 +55,7 @@ export default async function InterviewPage() {
   return (
     <div className="space-y-6">
       <section>
-        <p className="font-mono text-xs tracking-[0.3em] text-primary">
+        <p className="font-mono text-xs tracking-[0.3em] text-foreground">
           {"// INTERVIEW COACH"}
         </p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight">AI 面试教练</h1>

@@ -91,7 +91,7 @@ export default async function CalendarPage() {
     <div className="space-y-6">
       {/* 页头 */}
       <section>
-        <p className="font-mono text-xs tracking-[0.3em] text-primary">
+        <p className="font-mono text-xs tracking-[0.3em] text-foreground">
           {"// DEV CALENDAR"}
         </p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight">开发日历</h1>
@@ -102,7 +102,7 @@ export default async function CalendarPage() {
       </section>
 
       {/* 全年热力图 */}
-      <section className="clip-corner border border-border bg-card p-5">
+      <section className="card-hazard rivet border border-foreground bg-card p-5">
         <h2 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
           全年活跃热力
         </h2>
@@ -116,13 +116,13 @@ export default async function CalendarPage() {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="clip-corner border border-border bg-card p-4"
+            className="card-hazard rivet border border-foreground bg-card p-4"
           >
             <p className="flex items-center gap-1.5 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
               <stat.icon className="size-3.5" />
               {stat.label}
             </p>
-            <p className="mt-2 font-mono text-3xl font-bold text-primary">
+            <p className="mt-2 font-mono text-3xl font-bold text-foreground">
               {stat.value}
             </p>
             <p className="mt-1 font-mono text-[10px] text-muted-foreground">
@@ -134,7 +134,7 @@ export default async function CalendarPage() {
 
       {/* 日历 + 快速记录 */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <section className="clip-corner border border-border bg-card p-4 lg:col-span-2">
+        <section className="card-hazard rivet border border-foreground bg-card p-4 lg:col-span-2">
           <CalendarView events={viewEvents} />
         </section>
         <QuickRecord projects={projects} />

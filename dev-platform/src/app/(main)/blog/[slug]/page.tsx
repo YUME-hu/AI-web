@@ -145,10 +145,10 @@ export default async function BlogPostPage({ params }: PageProps) {
           </h2>
           <Link
             href={`/projects/${linkedProject.id}`}
-            className="clip-corner group mt-3 flex items-center gap-4 border border-border bg-card p-4 transition-colors hover:border-primary/60"
+            className="card-hazard rivet group mt-3 flex items-center gap-4 border border-foreground bg-card p-4 transition-colors hover:border-foreground"
           >
             <div className="min-w-0 flex-1">
-              <p className="font-bold transition-colors group-hover:text-primary">
+              <p className="font-bold transition-colors group-hover:text-chart-blue">
                 {linkedProject.title}
               </p>
               {linkedProject.description && (
@@ -157,7 +157,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 </p>
               )}
             </div>
-            <ArrowUpRight className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+            <ArrowUpRight className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-chart-blue" />
           </Link>
         </section>
       )}

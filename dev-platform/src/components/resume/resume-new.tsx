@@ -41,7 +41,7 @@ export function ResumeNew() {
   }
 
   return (
-    <section className="clip-corner border border-border bg-card p-5">
+    <section className="card-hazard rivet border border-foreground bg-card p-5">
       <div className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="rn-role" className="font-mono text-xs text-muted-foreground">

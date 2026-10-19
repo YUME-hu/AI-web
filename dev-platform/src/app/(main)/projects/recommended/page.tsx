@@ -41,7 +41,7 @@ export default async function RecommendedProjectsPage({
   return (
     <div className="space-y-6">
       <section>
-        <p className="font-mono text-xs tracking-[0.3em] text-primary">
+        <p className="font-mono text-xs tracking-[0.3em] text-foreground">
           {"// PROJECT GENERATOR"}
         </p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight">推荐项目方案</h1>
@@ -49,9 +49,9 @@ export default async function RecommendedProjectsPage({
       </section>
 
       {/* 说明卡 */}
-      <section className="clip-corner border border-primary/30 bg-primary/5 p-4">
+      <section className="card-hazard rivet border border-foreground bg-card p-4">
         <p className="text-sm text-foreground/90">
-          这里展示 AI 根据<span className="text-primary">技能缺口分析</span>
+          这里展示 AI 根据<span className="text-chart-blue">技能缺口分析</span>
           生成的练习项目方案：对照目标岗位 JD 的技能要求与项目库现有技术栈，
           找出缺失或覆盖不足的技能，并推荐可补齐缺口的项目。
         </p>

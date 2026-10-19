@@ -46,7 +46,7 @@ export function AuthButton() {
     return (
       <Link
         href="/login"
-        className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground transition-colors hover:text-primary"
+        className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground transition-colors hover:text-chart-blue"
       >
         <LogIn className="size-3.5" />
         登录

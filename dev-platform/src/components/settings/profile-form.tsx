@@ -151,6 +151,9 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
             placeholder="https://…/avatar.png"
             className="rounded-sm font-mono"
           />
+          <p className="font-mono text-[10px] leading-relaxed text-muted-foreground">
+            支持 https:// 外链，或仓库内路径（如 /avatars/portrait.jpg）
+          </p>
         </div>
         <div className="space-y-1.5">
           <Label className={FIELD_LABEL_CLASS}>技能标签</Label>

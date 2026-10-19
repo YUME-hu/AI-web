@@ -60,7 +60,7 @@ export function QuickRecord({
   }
 
   return (
-    <section className="clip-corner h-fit border border-border bg-card p-5">
+    <section className="card-hazard rivet h-fit border border-foreground bg-card p-5">
       <h3 className="flex items-center gap-2 font-mono text-xs tracking-widest text-muted-foreground uppercase">
         <CalendarPlus className="size-4" />
         快速记录

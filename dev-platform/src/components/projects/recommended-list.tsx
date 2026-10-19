@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button";
 /** 状态徽标配色：saved=灰 / started=青 / completed=绿 */
 const STATUS_STYLE: Record<RecommendedStatus, string> = {
   saved: "border-border bg-muted text-muted-foreground",
-  started: "border-primary/50 bg-primary/10 text-primary",
+  started: "border-chart-blue/50 bg-chart-blue/10 text-chart-blue",
   completed: "border-success/50 bg-success/10 text-success",
 };
 
@@ -141,7 +141,7 @@ export function RecommendedList({
           </p>
           <Link
             href="/resume"
-            className="mt-4 inline-flex items-center gap-1.5 font-mono text-xs text-primary hover:underline"
+            className="mt-4 inline-flex items-center gap-1.5 font-mono text-xs text-chart-blue hover:underline"
           >
             前往简历生成
             <ArrowRight className="size-3.5" />
@@ -155,7 +155,7 @@ export function RecommendedList({
             return (
               <section
                 key={rec.id}
-                className="clip-corner border border-border bg-card p-5"
+                className="card-hazard rivet border border-foreground bg-card p-5"
               >
                 {/* 头部 */}
                 <div className="flex flex-wrap items-center gap-2">
@@ -186,7 +186,7 @@ export function RecommendedList({
                 {/* 推荐理由 */}
                 {plan.whyRecommended && (
                   <p className="mt-2 border-l-2 border-primary/60 pl-3 text-sm text-muted-foreground">
-                    <span className="font-mono text-[10px] tracking-widest text-primary">
+                    <span className="font-mono text-[10px] tracking-widest text-muted-foreground">
                       推荐理由 //
                     </span>
                     <br />
@@ -226,7 +226,7 @@ export function RecommendedList({
                       <ul className="mt-2 space-y-1.5">
                         {plan.features.map((f, i) => (
                           <li key={i} className="flex gap-2 text-sm text-foreground/90">
-                            <span className="font-mono text-primary">▸</span>
+                            <span className="font-mono text-foreground">▸</span>
                             {f}
                           </li>
                         ))}
@@ -260,7 +260,7 @@ export function RecommendedList({
                             href={r.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="group inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-primary"
+                            className="group inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-chart-blue"
                           >
                             <ResourceIcon type={r.type} />
                             <span className="group-hover:underline">{r.title}</span>

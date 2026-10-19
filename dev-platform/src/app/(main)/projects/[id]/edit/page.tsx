@@ -47,7 +47,7 @@ export default async function EditProjectPage({
   return (
     <div className="space-y-6">
       <section>
-        <p className="font-mono text-xs tracking-[0.3em] text-primary">
+        <p className="font-mono text-xs tracking-[0.3em] text-foreground">
           {"// EDIT PROJECT"}
         </p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight">

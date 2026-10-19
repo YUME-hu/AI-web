@@ -9,7 +9,7 @@ export default function ChatPage() {
   return (
     <div className="space-y-6">
       <section>
-        <p className="font-mono text-xs tracking-[0.3em] text-primary">
+        <p className="font-mono text-xs tracking-[0.3em] text-foreground">
           {"// AI KNOWLEDGE ASSISTANT"}
         </p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight">AI 知识助手</h1>

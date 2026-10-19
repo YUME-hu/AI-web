@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { FolderGit2, Hexagon } from "lucide-react";
+import { FolderGit2 } from "lucide-react";
 import { createClient, getUser } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
+import { MissionBadge } from "@/components/layout/mission-badge";
 
 export const metadata = { title: "登录" };
 
@@ -42,15 +43,15 @@ export default async function LoginPage({
 
   return (
     <div className="bg-grid-sm flex min-h-dvh items-center justify-center px-4">
-      <div className="clip-corner w-full max-w-sm border border-border bg-card p-8">
+      <div className="card-hazard rivet w-full max-w-sm border border-foreground bg-card p-8">
         <div className="flex items-center gap-2">
-          <Hexagon className="size-5 text-primary" />
+          <MissionBadge className="size-6 shrink-0" />
           <p className="font-mono text-sm font-bold tracking-wider">
-            DEV<span className="text-primary">_</span>PLATFORM
+            DEV<span className="text-foreground">_</span>PLATFORM
           </p>
         </div>
 
-        <p className="mt-6 font-mono text-[10px] tracking-[0.3em] text-primary">
+        <p className="mt-6 font-mono text-[10px] tracking-[0.3em] text-foreground">
           {"// ACCESS CONTROL"}
         </p>
         <h1 className="mt-2 text-xl font-bold">登录管理控制台</h1>
@@ -74,7 +75,7 @@ export default async function LoginPage({
         <p className="mt-6 text-center">
           <Link
             href="/"
-            className="font-mono text-xs text-muted-foreground transition-colors hover:text-primary"
+            className="font-mono text-xs text-muted-foreground transition-colors hover:text-chart-blue"
           >
             ← 返回首页
           </Link>

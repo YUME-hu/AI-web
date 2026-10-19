@@ -16,7 +16,7 @@ export default async function ResumePage() {
     <div className="space-y-6">
       <section className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-mono text-xs tracking-[0.3em] text-primary">
+          <p className="font-mono text-xs tracking-[0.3em] text-foreground">
             {"// RESUME GENERATOR"}
           </p>
           <h1 className="mt-2 text-2xl font-bold tracking-tight">智能简历生成器</h1>
@@ -26,7 +26,7 @@ export default async function ResumePage() {
         </div>
         <Link
           href="/resume/history"
-          className="flex items-center gap-1.5 rounded-sm border border-border px-3 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary"
+          className="flex items-center gap-1.5 rounded-sm border border-border px-3 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:border-foreground hover:text-chart-blue"
         >
           <History className="size-3.5" />
           历史版本

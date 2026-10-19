@@ -92,7 +92,7 @@ export function ProjectImport() {
   return (
     <div className="space-y-6">
       {/* 第一步：README 输入 */}
-      <section className="clip-corner border border-border bg-card p-5">
+      <section className="card-hazard rivet border border-foreground bg-card p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
             01 // README 内容
@@ -150,7 +150,7 @@ export function ProjectImport() {
 
       {/* 第二步：解析结果确认 */}
       {parsedValues && (
-        <section className="clip-corner border border-border bg-card p-5">
+        <section className="card-hazard rivet border border-foreground bg-card p-5">
           <h2 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
             02 // 确认项目信息
           </h2>

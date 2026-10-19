@@ -11,14 +11,18 @@ import { UsageCharts } from "@/components/settings/usage-charts";
 
 export const metadata = { title: "Token 监控" };
 
-/** 模块徽标配色（与图表五色对应） */
+/**
+ * 模块徽标配色：与 usage-charts 的 MODULE_COLORS 一一对应。
+ * 边框/底纹用分类色区分色相，文字统一炭黑保证 10px 可读性；
+ * 旧的紫色 #8b5cf6 等调色板外颜色已清除。
+ */
 const MODULE_BADGE_STYLE: Record<string, string> = {
-  resume: "border-primary/50 bg-primary/10 text-primary",
-  knowledge: "border-accent/50 bg-accent/10 text-accent",
-  project_import: "border-success/50 bg-success/10 text-success",
-  interview: "border-[#8b5cf6]/50 bg-[#8b5cf6]/10 text-[#8b5cf6]",
-  project_generator: "border-warning/50 bg-warning/10 text-warning",
-  blog_assistant: "border-border bg-muted text-muted-foreground",
+  resume: "border-chart-blue bg-chart-blue/10 text-foreground",
+  knowledge: "border-chart-orange bg-chart-orange/10 text-foreground",
+  project_import: "border-chart-sand bg-chart-sand/25 text-foreground",
+  interview: "border-chart-olive bg-chart-olive/15 text-foreground",
+  project_generator: "border-chart-slate bg-chart-slate/15 text-foreground",
+  blog_assistant: "border-foreground/40 bg-muted text-muted-foreground",
 };
 
 function fmtTokens(n: number): string {
@@ -44,9 +48,13 @@ export default async function UsagePage() {
   const stats = await getUsageStats();
   const { limit, used } = stats.dailyLimit;
   const percent = limit > 0 ? Math.min(100, (used / limit) * 100) : 0;
-  // 限额进度条配色：>80% 琥珀、100% 红
+  // 限额进度条配色：常规信标蓝、>80% 波斯橙、100% 警示红（唯一允许用红的数据状态）
   const barColor =
-    percent >= 100 ? "bg-destructive" : percent > 80 ? "bg-accent" : "bg-primary";
+    percent >= 100
+      ? "bg-destructive"
+      : percent > 80
+        ? "bg-chart-orange"
+        : "bg-chart-blue";
 
   const cards = [
     { label: "今日 Token", value: fmtTokens(stats.today.tokens), hint: `${stats.today.calls} 次调用`, icon: Zap },
@@ -59,7 +67,7 @@ export default async function UsagePage() {
     <div className="space-y-6">
       {/* 页头 */}
       <section>
-        <p className="font-mono text-xs tracking-[0.3em] text-primary">
+        <p className="font-mono text-xs tracking-[0.3em] text-foreground">
           {"// TOKEN MONITOR"}
         </p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight">Token 监控中心</h1>
@@ -72,12 +80,12 @@ export default async function UsagePage() {
       {/* 统计卡 */}
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {cards.map((card) => (
-          <div key={card.label} className="clip-corner border border-border bg-card p-4">
+          <div key={card.label} className="card-hazard rivet border border-foreground bg-card p-4">
             <p className="flex items-center gap-1.5 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
               <card.icon className="size-3.5" />
               {card.label}
             </p>
-            <p className="mt-2 font-mono text-3xl font-bold text-primary">
+            <p className="mt-2 font-mono text-3xl font-bold text-foreground">
               {card.value}
             </p>
             <p className="mt-1 font-mono text-[10px] text-muted-foreground">
@@ -88,7 +96,7 @@ export default async function UsagePage() {
       </section>
 
       {/* 限额进度条 */}
-      <section className="clip-corner border border-border bg-card p-5">
+      <section className="card-hazard rivet border border-foreground bg-card p-5">
         <div className="flex items-baseline justify-between">
           <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
             当日限额
@@ -100,8 +108,8 @@ export default async function UsagePage() {
                 percent >= 100
                   ? "text-destructive"
                   : percent > 80
-                    ? "text-accent"
-                    : "text-primary",
+                    ? "text-chart-orange"
+                    : "text-chart-blue",
               )}
             >
               {used.toLocaleString()}
@@ -110,9 +118,10 @@ export default async function UsagePage() {
             {limit.toLocaleString()} tokens（{percent.toFixed(1)}%）
           </span>
         </div>
-        <div className="mt-3 h-2 w-full rounded-full bg-muted">
+        {/* 进度条：方角、无过渡，工业刻度条 */}
+        <div className="mt-3 h-2 w-full border border-foreground bg-muted">
           <div
-            className={cn("h-full rounded-full transition-all", barColor)}
+            className={cn("h-full", barColor)}
             style={{ width: `${percent}%` }}
           />
         </div>
@@ -127,50 +136,51 @@ export default async function UsagePage() {
       <UsageCharts daily={stats.daily} byModule={stats.byModule} />
 
       {/* 调用日志 */}
-      <section className="clip-corner border border-border bg-card p-5">
+      <section className="card-hazard rivet border border-foreground bg-card p-5">
         <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
           最近 {stats.recent.length} 条调用
         </h3>
         {stats.recent.length > 0 ? (
           <div className="mt-3 overflow-x-auto">
-            <table className="w-full text-sm">
+            {/* 数据表格：1px 炭黑网格 + 表头米色底 + 行 hover */}
+            <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="border-b border-border font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
-                  <th className="py-2 pr-4 text-left font-normal">时间</th>
-                  <th className="py-2 pr-4 text-left font-normal">模块</th>
-                  <th className="py-2 pr-4 text-right font-normal">Tokens</th>
-                  <th className="py-2 pr-4 text-right font-normal">成本</th>
-                  <th className="py-2 pr-4 text-right font-normal">耗时</th>
-                  <th className="py-2 text-left font-normal">模型</th>
+                <tr className="bg-muted font-mono text-[10px] tracking-[0.14em] uppercase">
+                  <th className="border border-foreground px-2 py-2 text-left font-bold">时间</th>
+                  <th className="border border-foreground px-2 py-2 text-left font-bold">模块</th>
+                  <th className="border border-foreground px-2 py-2 text-right font-bold">Tokens</th>
+                  <th className="border border-foreground px-2 py-2 text-right font-bold">成本</th>
+                  <th className="border border-foreground px-2 py-2 text-right font-bold">耗时</th>
+                  <th className="border border-foreground px-2 py-2 text-left font-bold">模型</th>
                 </tr>
               </thead>
               <tbody>
                 {stats.recent.map((log, i) => (
-                  <tr key={i} className="border-b border-border/50 last:border-0">
-                    <td className="py-2 pr-4 font-mono text-xs whitespace-nowrap text-muted-foreground">
+                  <tr key={i} className="transition-none hover:bg-muted/60">
+                    <td className="border border-foreground px-2 py-1.5 font-mono text-xs whitespace-nowrap text-muted-foreground">
                       {log.created_at.slice(5, 16).replace("T", " ")}
                     </td>
-                    <td className="py-2 pr-4">
+                    <td className="border border-foreground px-2 py-1.5">
                       <span
                         className={cn(
-                          "inline-block rounded-sm border px-1.5 py-0.5 font-mono text-[10px]",
+                          "inline-block border px-1.5 py-0.5 font-mono text-[10px]",
                           MODULE_BADGE_STYLE[log.module] ??
-                            "border-border bg-muted text-muted-foreground",
+                            "border-foreground/40 bg-muted text-muted-foreground",
                         )}
                       >
                         {moduleLabel(log.module)}
                       </span>
                     </td>
-                    <td className="py-2 pr-4 text-right font-mono text-xs">
+                    <td className="border border-foreground px-2 py-1.5 text-right font-mono text-xs">
                       {log.total_tokens.toLocaleString()}
                     </td>
-                    <td className="py-2 pr-4 text-right font-mono text-xs text-muted-foreground">
+                    <td className="border border-foreground px-2 py-1.5 text-right font-mono text-xs text-muted-foreground">
                       {fmtCost(Number(log.cost_usd ?? 0))}
                     </td>
-                    <td className="py-2 pr-4 text-right font-mono text-xs text-muted-foreground">
+                    <td className="border border-foreground px-2 py-1.5 text-right font-mono text-xs text-muted-foreground">
                       {log.duration_ms != null ? `${(log.duration_ms / 1000).toFixed(1)}s` : "—"}
                     </td>
-                    <td className="py-2 font-mono text-xs text-muted-foreground">
+                    <td className="border border-foreground px-2 py-1.5 font-mono text-xs text-muted-foreground">
                       {log.model ?? "—"}
                     </td>
                   </tr>

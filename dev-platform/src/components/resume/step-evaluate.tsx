@@ -75,7 +75,7 @@ export function StepEvaluate({
         {evaluation?.map((item) => (
           <section
             key={item.projectId}
-            className="clip-corner border border-border bg-card p-4"
+            className="card-hazard rivet border border-foreground bg-card p-4"
           >
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="font-semibold">

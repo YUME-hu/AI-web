@@ -16,6 +16,8 @@ import { createClient, isAdmin } from "@/lib/supabase/server";
 import { getProfile } from "@/lib/profile";
 import { Heatmap } from "@/components/calendar/heatmap";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { MissionAvatar } from "@/components/ui/mission-avatar";
 import { cn } from "@/lib/utils";
 
 type TimelineItem = {
@@ -25,10 +27,13 @@ type TimelineItem = {
   href: string | null;
 };
 
+/**
+ * 时间轴分类色：《星空》辅助色板，不再用警示红（红只留给主按钮与关键操作）
+ */
 const TIMELINE_META = {
-  project: { icon: FolderKanban, color: "text-primary", dot: "border-primary" },
-  blog: { icon: FileText, color: "text-accent", dot: "border-accent" },
-  event: { icon: Calendar, color: "text-muted-foreground", dot: "border-muted-foreground" },
+  project: { icon: FolderKanban, color: "text-chart-blue", dot: "bg-chart-blue" },
+  blog: { icon: FileText, color: "text-chart-orange", dot: "bg-chart-orange" },
+  event: { icon: Calendar, color: "text-muted-foreground", dot: "bg-muted-foreground" },
 } as const;
 
 const QUICK_LINKS = [
@@ -105,16 +110,16 @@ export default async function HomePage() {
   const monthPrefix = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
   const stats = [
     { label: "项目总数", value: String(projectCount ?? 0), hint: "PROJECTS" },
-    { label: "文章数", value: String(postCount ?? 0), hint: "BLOG POSTS" },
+    { label: "文章数", value: String(postCount ?? 0), hint: "BLOG_POSTS" },
     {
       label: "开发天数",
       value: String(new Set(allEvents.map((e) => e.date)).size),
-      hint: "ACTIVE DAYS",
+      hint: "ACTIVE_DAYS",
     },
     {
       label: "本月活跃",
       value: String(allEvents.filter((e) => e.date.startsWith(monthPrefix)).length),
-      hint: "THIS MONTH",
+      hint: "THIS_MONTH",
     },
   ];
 
@@ -161,13 +166,13 @@ export default async function HomePage() {
       {/* Hero */}
       <section className="flex items-center justify-between gap-6">
         <div className="min-w-0">
-          <p className="font-mono text-xs tracking-[0.3em] text-primary">
+          <p className="font-mono text-xs tracking-[0.3em] text-foreground">
             {"// PERSONAL DEVELOPER PLATFORM"}
           </p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight">{name}</h1>
-          <p className="text-glow-primary mt-1.5 font-mono text-lg text-primary">
-            {title}
-          </p>
+          <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground">
+            {name}
+          </h1>
+          <p className="mt-1.5 font-mono text-lg text-foreground">{title}</p>
           {bio && (
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
               {bio}
@@ -176,7 +181,7 @@ export default async function HomePage() {
           {skills.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-1.5">
               {skills.map((s) => (
-                <Badge key={s} variant="outline" className="rounded-sm font-mono text-[10px]">
+                <Badge key={s} variant="outline">
                   {s}
                 </Badge>
               ))}
@@ -191,7 +196,7 @@ export default async function HomePage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.label}
-                  className="flex size-8 items-center justify-center rounded-sm border border-border text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary"
+                  className="flex size-8 items-center justify-center rounded-none border border-foreground text-foreground transition-none hover:bg-foreground hover:text-background"
                 >
                   <s.icon className="size-4" />
                 </a>
@@ -199,111 +204,122 @@ export default async function HomePage() {
             </div>
           )}
         </div>
-        {/* 右侧装饰：大六边形 + 网格（纯 CSS） */}
-        <div className="bg-grid relative hidden h-44 w-44 shrink-0 items-center justify-center md:flex">
-          <Hexagon className="size-36 text-primary/20" strokeWidth={1} />
-          <Hexagon className="absolute size-20 text-primary/40" strokeWidth={1} />
-          <span className="absolute font-mono text-[10px] tracking-[0.3em] text-primary/60">
-            ONLINE
-          </span>
-        </div>
+        {/* 右侧：有头像则展示任务头像，否则保留六边形占位装饰 */}
+        {profile?.avatar_url ? (
+          <div className="hidden shrink-0 md:block">
+            <MissionAvatar src={profile.avatar_url} name={name} size={168} />
+          </div>
+        ) : (
+          <div className="bg-grid relative hidden h-44 w-44 shrink-0 items-center justify-center md:flex">
+            <Hexagon className="size-36 text-chart-blue/25" strokeWidth={1} />
+            <Hexagon className="absolute size-20 text-chart-blue/45" strokeWidth={1} />
+            <span className="absolute font-mono text-[10px] tracking-[0.3em] text-chart-blue">
+              ONLINE
+            </span>
+          </div>
+        )}
       </section>
 
       <div className="divider-tactical" />
 
-      {/* 统计卡 */}
+      {/* 统计卡：真正的 Card 组件（顶部斜纹 + 双角铆钉） */}
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="clip-corner border border-border bg-card p-4">
-            <p className="font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
-              {stat.label}
-            </p>
-            <p className="mt-2 font-mono text-3xl font-bold text-primary">
-              {stat.value}
-            </p>
-            <p className="mt-1 font-mono text-[10px] text-muted-foreground">
-              {stat.hint}
-            </p>
-          </div>
+          <Card key={stat.label}>
+            <div className="px-4">
+              <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
+                {stat.hint}
+              </p>
+              <p className="tnum mt-2.5 font-mono text-4xl leading-none font-bold text-foreground">
+                {stat.value}
+              </p>
+              <p className="mt-2.5 text-[11px] text-muted-foreground">{stat.label}</p>
+            </div>
+          </Card>
         ))}
       </section>
 
       {/* 热力图 */}
-      <section className="clip-corner border border-border bg-card p-5">
-        <h2 className="font-mono text-xs tracking-widest text-muted-foreground">
-          开发轨迹 <span className="text-primary/60">{"// ACTIVITY"}</span>
-        </h2>
-        <div className="mt-3">
-          <Heatmap events={allEvents} />
+      <Card>
+        <div className="px-5">
+          <h2 className="font-mono text-xs tracking-widest text-muted-foreground">
+            开发轨迹 <span className="opacity-60">{"// ACTIVITY"}</span>
+          </h2>
+          <div className="mt-3">
+            <Heatmap events={allEvents} />
+          </div>
         </div>
-      </section>
+      </Card>
 
       {/* 最近动态 */}
-      <section className="clip-corner border border-border bg-card p-5">
-        <h2 className="font-mono text-xs tracking-widest text-muted-foreground">
-          最近动态 <span className="text-primary/60">{"// TIMELINE"}</span>
-        </h2>
-        {timeline.length > 0 ? (
-          <div className="relative mt-4 space-y-4 before:absolute before:top-1 before:bottom-1 before:left-[5px] before:w-px before:bg-border">
-            {timeline.map((item, i) => {
-              const meta = TIMELINE_META[item.type];
-              const content = (
-                <>
-                  <span
-                    className={cn(
-                      "absolute top-1.5 left-0 size-[11px] rounded-full border-2 bg-background",
-                      meta.dot,
-                    )}
-                  />
-                  <div className="flex min-w-0 flex-1 items-baseline gap-3">
-                    <meta.icon className={cn("size-3.5 shrink-0 self-center", meta.color)} />
-                    <p className="truncate text-sm text-foreground/90 transition-colors group-hover:text-primary">
-                      {item.title}
-                    </p>
-                    <span className="ml-auto shrink-0 font-mono text-[10px] text-muted-foreground">
-                      {item.time.slice(0, 10)}
-                    </span>
+      <Card>
+        <div className="px-5">
+          <h2 className="font-mono text-xs tracking-widest text-muted-foreground">
+            最近动态 <span className="opacity-60">{"// TIMELINE"}</span>
+          </h2>
+          {timeline.length > 0 ? (
+            <div className="relative mt-4 space-y-4 before:absolute before:top-1 before:bottom-1 before:left-[4px] before:w-px before:bg-border">
+              {timeline.map((item, i) => {
+                const meta = TIMELINE_META[item.type];
+                const content = (
+                  <>
+                    {/* 方形节点（工业刻度感），颜色走《星空》辅助色 */}
+                    <span
+                      className={cn(
+                        "absolute top-1.5 left-0 size-[9px] border border-foreground",
+                        meta.dot,
+                      )}
+                    />
+                    <div className="flex min-w-0 flex-1 items-baseline gap-3">
+                      <meta.icon
+                        className={cn("size-3.5 shrink-0 self-center", meta.color)}
+                      />
+                      <p className="truncate text-sm text-foreground/90 transition-none group-hover:text-chart-blue">
+                        {item.title}
+                      </p>
+                      <span className="ml-auto shrink-0 font-mono text-[10px] text-muted-foreground">
+                        {item.time.slice(0, 10)}
+                      </span>
+                    </div>
+                  </>
+                );
+                return item.href ? (
+                  <Link key={i} href={item.href} className="group relative flex gap-3 pl-6">
+                    {content}
+                  </Link>
+                ) : (
+                  <div key={i} className="relative flex gap-3 pl-6">
+                    {content}
                   </div>
-                </>
-              );
-              return item.href ? (
-                <Link key={i} href={item.href} className="group relative flex gap-3 pl-6">
-                  {content}
-                </Link>
-              ) : (
-                <div key={i} className="relative flex gap-3 pl-6">
-                  {content}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="mt-4 text-sm text-muted-foreground">
-            暂无动态，去创建第一个项目吧
-          </p>
-        )}
-      </section>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-muted-foreground">
+              暂无动态，去创建第一个项目吧
+            </p>
+          )}
+        </div>
+      </Card>
 
       {/* 快速入口（仅登录可见） */}
       {admin && (
         <section>
-          <h2 className="font-mono text-xs tracking-widest text-muted-foreground">
-            快速入口 <span className="text-primary/60">{"// QUICK ACTIONS"}</span>
+          <h2 className="mb-3 font-mono text-xs tracking-widest text-muted-foreground">
+            快速入口 <span className="opacity-60">{"// QUICK ACTIONS"}</span>
           </h2>
-          <div className="mt-3 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {QUICK_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="clip-corner group border border-border bg-card p-4 transition-colors hover:border-primary/60"
-              >
-                <link.icon className="size-5 text-primary" />
-                <p className="mt-2.5 font-bold transition-colors group-hover:text-primary">
-                  {link.title}
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {link.description}
-                </p>
+              <Link key={link.href} href={link.href} className="block">
+                <Card className="h-full gap-0 transition-none hover:bg-muted">
+                  <div className="px-4">
+                    <link.icon className="size-5 text-foreground" />
+                    <p className="mt-2.5 font-bold text-foreground">{link.title}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {link.description}
+                    </p>
+                  </div>
+                </Card>
               </Link>
             ))}
           </div>

@@ -13,7 +13,7 @@ export default async function ImportProjectPage() {
   return (
     <div className="space-y-6">
       <section>
-        <p className="font-mono text-xs tracking-[0.3em] text-primary">
+        <p className="font-mono text-xs tracking-[0.3em] text-foreground">
           {"// PROJECT IMPORT"}
         </p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight">导入项目</h1>
