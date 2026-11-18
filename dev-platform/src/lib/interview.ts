@@ -2,7 +2,7 @@
  * Phase 8 AI 面试教练共享逻辑（纯函数）
  * prompt 摘要构建 + AI 返回归一化
  */
-import { asStringArray } from "./resumes";
+import { asStringArray, unwrapArray } from "./resumes";
 import type {
   AnswerFeedback,
   InterviewCategory,
@@ -77,9 +77,8 @@ export function normalizeInterviewQuestions(
   raw: unknown,
   validProjectIds: Set<string>,
 ): NormalizedQuestion[] {
-  if (!Array.isArray(raw)) return [];
   const result: NormalizedQuestion[] = [];
-  for (const item of raw) {
+  for (const item of unwrapArray(raw, ["questions", "items", "results"])) {
     if (!item || typeof item !== "object") continue;
     const q = item as Record<string, unknown>;
     if (typeof q.question !== "string" || !q.question.trim()) continue;

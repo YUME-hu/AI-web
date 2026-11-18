@@ -54,6 +54,12 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
 
     const matches = normalizeMatches(raw, new Set(projects.map((p) => p.id)));
     if (matches.length === 0) {
+      // 便于定位：记录原始返回的形状与片段（仅服务端日志，不落库）
+      console.error(
+        "[resume-match] 归一化后为空，原始返回：",
+        Array.isArray(raw) ? `array(${raw.length})` : `object(${Object.keys(raw ?? {}).join(",")})`,
+        JSON.stringify(raw)?.slice(0, 500),
+      );
       return NextResponse.json(
         { error: "AI 未返回有效匹配结果，请重试" },
         { status: 502 },

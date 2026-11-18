@@ -27,6 +27,39 @@ function asNumber(value: unknown, fallback = 0): number {
   return typeof n === "number" && Number.isFinite(n) ? n : fallback;
 }
 
+/**
+ * 从 AI 返回中取出数组。
+ *
+ * JSON 模式（response_format: json_object）会强制模型输出一个对象，而多个
+ * prompt 要求的是顶层数组，于是模型实际返回 {"projects":[...]}、{"matches":[...]}
+ * 这类"包了一层"的结构。若直接按数组处理会被判为无效结果（用户侧表现为
+ * "AI 未返回有效匹配结果，请重试"），故在此兼容两种形态。
+ *
+ * @param preferredKeys 优先尝试的包裹 key（按顺序）
+ */
+export function unwrapArray(raw: unknown, preferredKeys: string[] = []): unknown[] {
+  if (Array.isArray(raw)) return raw;
+  if (!raw || typeof raw !== "object") return [];
+
+  const obj = raw as Record<string, unknown>;
+  for (const key of preferredKeys) {
+    if (Array.isArray(obj[key])) return obj[key] as unknown[];
+  }
+  // 兜底：取第一个数组值（模型可能用 data / items / result 等任意 key 包裹）
+  for (const value of Object.values(obj)) {
+    if (Array.isArray(value)) return value;
+  }
+  // 再兜底一层：{"result":{"matches":[...]}}
+  for (const value of Object.values(obj)) {
+    if (value && typeof value === "object") {
+      for (const inner of Object.values(value as Record<string, unknown>)) {
+        if (Array.isArray(inner)) return inner;
+      }
+    }
+  }
+  return [];
+}
+
 function asImportance(value: unknown): SkillImportance {
   // 容错：模型可能返回中文或大小写变体
   const v = String(value ?? "").toLowerCase();
@@ -55,8 +88,9 @@ export function normalizeMatches(
   raw: unknown,
   validProjectIds: Set<string>,
 ): ProjectMatch[] {
-  if (!Array.isArray(raw)) return [];
-  return raw
+  return (unwrapArray(raw, ["matches", "projects", "results"]) as Array<
+    Partial<ProjectMatch> | null | undefined
+  >)
     .filter(
       (m): m is Partial<ProjectMatch> & { projectId: string } =>
         !!m && typeof m.projectId === "string" && validProjectIds.has(m.projectId),
@@ -73,8 +107,9 @@ export function normalizeMatches(
 
 /** AI 自评结果归一化 */
 export function normalizeEvaluations(raw: unknown): ResumeEvaluation[] {
-  if (!Array.isArray(raw)) return [];
-  return raw
+  return (unwrapArray(raw, ["evaluations", "results", "items"]) as Array<
+    Partial<ResumeEvaluation> | null | undefined
+  >)
     .filter((e): e is Partial<ResumeEvaluation> & { projectId: string } =>
       !!e && typeof e.projectId === "string",
     )
